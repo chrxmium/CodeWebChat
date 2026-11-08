@@ -32,7 +32,7 @@ os = __toESM(os);
 let path = require("path");
 path = __toESM(path);
 let ws = require("ws");
-// src/json-rpc.ts
+// apps/sidecar/src/json-rpc.ts
 /**
 * Minimal JSON-RPC 2.0 peer over a newline-delimited stream. Used instead of a
 * heavier framework so the Kotlin side can speak it with three lines of code.
@@ -125,13 +125,13 @@ var JsonRpcPeer = class {
 		}
 	}
 };
-// ../../packages/shared/src/constants/websocket.ts
+// packages/shared/src/constants/websocket.ts
 var DEFAULT_PORT = 55155;
 var CLIENT_TYPE = {
 	BROWSER: "browser",
 	EDITOR: "editor"
 };
-// src/websocket-server.ts
+// apps/sidecar/src/websocket-server.ts
 var CHROME_EXTENSION_ID = "ljookipcanaglfaocjbgdicfbdhhjffp";
 var get_or_create_shared_token = () => {
 	const token_dir = path.join(os.homedir(), ".cwc");
@@ -368,7 +368,7 @@ var ConnectorServer = class {
 		await new Promise((resolve) => this.http_server.close(() => resolve()));
 	}
 };
-// src/hosts/fs-host.ts
+// apps/sidecar/src/hosts/fs-host.ts
 /**
 * File-system host used when the sidecar runs standalone (`--workspace`), and by
 * the sidecar tests. The JetBrains plugin uses `RpcHost` instead so that writes
@@ -456,7 +456,7 @@ var FsHost = class {
 		this.logger(message);
 	}
 };
-// src/hosts/rpc-host.ts
+// apps/sidecar/src/hosts/rpc-host.ts
 /**
 * Host that delegates every operation to the editor plugin over JSON-RPC.
 * This is what keeps the IDE in charge of writes (undo/VFS) and of the diff
@@ -508,11 +508,11 @@ var RpcHost = class {
 		this.peer.notify("host.error", { message });
 	}
 };
-// ../../packages/core/src/utils/normalize-path.ts
+// packages/core/src/utils/normalize-path.ts
 var normalize_path = (file_path) => {
 	return file_path.replace(/\\/g, "/");
 };
-// ../../packages/core/src/prompt/diff-placeholders.ts
+// packages/core/src/prompt/diff-placeholders.ts
 var DIFF_PLACEHOLDERS = {
 	FILE_CREATED: "File created",
 	FILE_DELETED: "File deleted",
@@ -523,12 +523,12 @@ var DIFF_PLACEHOLDERS = {
 	BINARY_FILE_MODIFIED: "Binary file modified",
 	BINARY_FILE_ADDED: "Binary file added"
 };
-// ../../packages/core/src/utils/get-markdown-backticks.ts
+// packages/core/src/utils/get-markdown-backticks.ts
 var get_markdown_backticks = (content) => {
 	const match = content.match(/`{3,}/g);
 	return "`".repeat(Math.max(3, (match ? match.reduce((max, m) => Math.max(max, m.length), 0) : 0) + 1));
 };
-// ../../packages/core/src/prompt/prompt-builder.ts
+// packages/core/src/prompt/prompt-builder.ts
 var PromptBuilder;
 (function(_PromptBuilder) {
 	const build_file_context = _PromptBuilder.build_file_context = (params) => {
@@ -632,7 +632,7 @@ var PromptBuilder;
 		};
 	};
 })(PromptBuilder || (PromptBuilder = {}));
-// ../../packages/core/src/prompt/edit-format-instructions.ts
+// packages/core/src/prompt/edit-format-instructions.ts
 var intro = `Whenever showing a new, updated, renamed, or deleted file, provide a brief explanation, then print the path in a markdown heading (e.g. ### New file: \`src/examples/hello.py\`, ### Updated file: \`src/examples/hello.py\`, ### Renamed file: \`src/examples/hello.py\` (old) \`src/welcome.py\` (new), ### Deleted file: \`src/examples/hello.py\`)`;
 var EDIT_FORMAT_INSTRUCTIONS_WHOLE = `${intro}, followed by a markdown code block with the file's FULL (from cover to cover) contents. Example:
 Updated the greeting text.
@@ -728,7 +728,7 @@ def subtract(a, b):
 ### Deleted file: \`src/examples/weekdays.py\`
 
 ### Renamed file: \`src/examples/math_utils.py\` (old) \`src/examples/calculator.py\` (new)`;
-// ../../packages/core/src/prompt/build-prompt.ts
+// packages/core/src/prompt/build-prompt.ts
 var EDIT_FORMAT_INSTRUCTIONS = {
 	whole: EDIT_FORMAT_INSTRUCTIONS_WHOLE,
 	truncated: `${intro}, followed by a markdown code block with file's contents. As a space saving measure, truncate blocks like unchanged function bodies (code inside {}) by replacing with ellipsis comments. Example:
@@ -839,7 +839,7 @@ var build_chatbot_prompt = (params) => {
 		prompt_part2: part2
 	};
 };
-// ../../packages/core/src/utils/cleanup-api-response/cleanup-api-response.ts
+// packages/core/src/utils/cleanup-api-response/cleanup-api-response.ts
 var cleanup_api_response = (params) => {
 	let content = params.content.trim();
 	if (content.startsWith("<think>")) {
@@ -886,7 +886,7 @@ var cleanup_api_response = (params) => {
 	content = content.trim();
 	return content;
 };
-// ../../packages/core/src/response-parser/parsers/code-at-cursor-parser/code-at-cursor-parser.ts
+// packages/core/src/response-parser/parsers/code-at-cursor-parser/code-at-cursor-parser.ts
 var extract_path_and_position = (line) => {
 	const match = line.match(/###\s+Code at cursor:\s+`?([^`]+)`?\s+\((\d+):(\d+)\)/);
 	if (match) {
@@ -953,7 +953,7 @@ var parse_code_at_cursor = (params) => {
 	});
 	return results;
 };
-// ../../packages/shared/src/utils/extract-path-from-line-of-code/extract-path-from-line-of-code.ts
+// packages/shared/src/utils/extract-path-from-line-of-code/extract-path-from-line-of-code.ts
 var extract_path_from_line_of_code = (line) => {
 	const xml_path_match = line.match(/<file\s+path=["']([^"']+)["']/);
 	if (xml_path_match) return xml_path_match[1];
@@ -962,7 +962,7 @@ var extract_path_from_line_of_code = (line) => {
 	if (path_match) return path_match[1].replace(/\\/g, "/");
 	return null;
 };
-// ../../packages/core/src/response-parser/parsers/standard-parser/helpers/process-conflict-markers.ts
+// packages/core/src/response-parser/parsers/standard-parser/helpers/process-conflict-markers.ts
 var process_conflict_markers = (content) => {
 	const lines = content.split("\n");
 	const result_lines = [];
@@ -1018,7 +1018,7 @@ var process_conflict_markers = (content) => {
 	}
 	return result_lines.join("\n");
 };
-// ../../packages/core/src/response-parser/parsers/standard-parser/helpers/create-or-update-file-item.ts
+// packages/core/src/response-parser/parsers/standard-parser/helpers/create-or-update-file-item.ts
 var create_or_update_file_item = (params) => {
 	if (!params.file_name) return;
 	const processed_content = process_conflict_markers(params.content);
@@ -1065,7 +1065,7 @@ var create_or_update_file_item = (params) => {
 		params.results.push(new_file);
 	}
 };
-// ../../packages/core/src/response-parser/parsers/standard-parser/helpers/flush-text-block.ts
+// packages/core/src/response-parser/parsers/standard-parser/helpers/flush-text-block.ts
 var flush_text_block = (params) => {
 	if (!params.text_block.trim()) return;
 	const content = params.results.length === 0 ? params.text_block.trim() : params.text_block.trimEnd();
@@ -1074,7 +1074,7 @@ var flush_text_block = (params) => {
 		content
 	});
 };
-// ../../packages/core/src/response-parser/parsers/standard-parser/helpers/extract-and-set-workspace-path.ts
+// packages/core/src/response-parser/parsers/standard-parser/helpers/extract-and-set-workspace-path.ts
 var extract_and_set_workspace_path = (params) => {
 	const { workspace_name, relative_path } = extract_workspace_and_path({
 		raw_file_path: params.raw_file_path.trim(),
@@ -1085,7 +1085,7 @@ var extract_and_set_workspace_path = (params) => {
 		relative_path
 	};
 };
-// ../../packages/core/src/response-parser/parsers/standard-parser/standard-parser.ts
+// packages/core/src/response-parser/parsers/standard-parser/standard-parser.ts
 var file_blocks_parser = (params) => {
 	const results = [];
 	const file_ref_map = /* @__PURE__ */ new Map();
@@ -1410,7 +1410,7 @@ var file_blocks_parser = (params) => {
 	for (const result of merged_results) if (result.type === "text") result.content = result.content.trim();
 	return merged_results;
 };
-// ../../packages/shared/src/utils/logger.ts
+// packages/shared/src/utils/logger.ts
 var Logger;
 (function(_Logger) {
 	const LOG_PREFIX = "[CWC]";
@@ -1453,7 +1453,7 @@ var Logger;
 	}
 	_Logger.error = error;
 })(Logger || (Logger = {}));
-// ../../packages/core/src/response-parser/parsers/diff-parser/helpers/path-utils.ts
+// packages/core/src/response-parser/parsers/diff-parser/helpers/path-utils.ts
 var strip_quotes = (path) => {
 	const trimmed = path.trim();
 	if (trimmed.startsWith("\"") && trimmed.endsWith("\"")) return trimmed.substring(1, trimmed.length - 1).trim();
@@ -1497,7 +1497,7 @@ var extract_path_with_xml_fallback = (line) => {
 	}
 	return extracted ? extracted.trim() : extracted;
 };
-// ../../packages/core/src/response-parser/parsers/diff-parser/helpers/patch-utils.ts
+// packages/core/src/response-parser/parsers/diff-parser/helpers/patch-utils.ts
 var normalize_header_line = (params) => {
 	const processed_line = params.line.replace(/\s\d{4}-\d{2}-\d{2}.*$/, "");
 	if (processed_line.startsWith("--- ")) {
@@ -1570,7 +1570,7 @@ var format_hunk_headers = (lines) => {
 	}
 	return formatted_lines;
 };
-// ../../packages/core/src/response-parser/parsers/diff-parser/helpers/block-utils.ts
+// packages/core/src/response-parser/parsers/diff-parser/helpers/block-utils.ts
 var find_file_path_before_block = (params) => {
 	const max_back = params.max_lines_back || 5;
 	let candidate;
@@ -1628,7 +1628,7 @@ var remove_path_line_from_text_block = (params) => {
 		params.text_item.content = new_content;
 	}
 };
-// ../../packages/core/src/response-parser/parsers/diff-parser/diff-parser.ts
+// packages/core/src/response-parser/parsers/diff-parser/diff-parser.ts
 var process_collected_patch_lines = (params) => {
 	let lines = [...params.patch_lines_array];
 	lines = lines.filter((l) => l.length > 0);
@@ -2189,7 +2189,7 @@ var build_patch_content = (params) => {
 	}
 	return patch_content;
 };
-// ../../packages/core/src/utils/extract-paths-from-bullet-list.ts
+// packages/core/src/utils/extract-paths-from-bullet-list.ts
 var extract_paths_from_bullet_list = (params) => {
 	const found_paths = /* @__PURE__ */ new Set();
 	const lines = params.text.split("\n");
@@ -2223,7 +2223,7 @@ var extract_paths_from_bullet_list = (params) => {
 		return idx_a - idx_b;
 	});
 };
-// ../../packages/core/src/response-parser/parsers/intelligent-file-search-results-parser/intelligent-file-search-results-parser.ts
+// packages/core/src/response-parser/parsers/intelligent-file-search-results-parser/intelligent-file-search-results-parser.ts
 var parse_intelligent_file_search_results = (params) => {
 	const match = params.response.trim().match(/^\*\*Intelligent file search results(.*?):\*\*/);
 	if (!match) return null;
@@ -2245,7 +2245,7 @@ var parse_intelligent_file_search_results = (params) => {
 		folder_path
 	};
 };
-// ../../packages/core/src/response-parser/parsers/commit-message-parser/commit-message-parser.ts
+// packages/core/src/response-parser/parsers/commit-message-parser/commit-message-parser.ts
 var parse_commit_message = (response) => {
 	const trimmed = response.trim();
 	if (trimmed.startsWith("**Commit message:**")) return {
@@ -2254,7 +2254,7 @@ var parse_commit_message = (response) => {
 	};
 	return null;
 };
-// ../../packages/core/src/response-parser/parsers/patch-repair-parser/patch-repair-parser.ts
+// packages/core/src/response-parser/parsers/patch-repair-parser/patch-repair-parser.ts
 var extract_path = (line) => {
 	const match = line.match(/^###\s+Patch(?:ed)?\s+(?:repair|file):\s*`?([^`]+)`?/i);
 	if (match && match[1]) return match[1].trim();
@@ -2318,7 +2318,7 @@ var parse_patch_repair = (params) => {
 	}
 	return results;
 };
-// ../../packages/core/src/response-parser/response-parser.ts
+// packages/core/src/response-parser/response-parser.ts
 var extract_workspace_and_path = (params) => {
 	let file_path = normalize_path(params.raw_file_path);
 	if (file_path.startsWith("/")) file_path = file_path.substring(1);
@@ -2364,7 +2364,7 @@ var parse_response = (params) => {
 		is_single_root_folder_workspace
 	});
 };
-// ../../packages/core/src/changes/diff-processor/utils/empty-file-handler.ts
+// packages/core/src/changes/diff-processor/utils/empty-file-handler.ts
 var handle_empty_file = (diff_patch) => {
 	const patch_lines = diff_patch.replace(/\r\n/g, "\n").split("\n");
 	let has_additions = false;
@@ -2400,7 +2400,7 @@ var handle_empty_file = (diff_patch) => {
 	}
 	return null;
 };
-// ../../packages/core/src/changes/diff-processor/utils/normalize.ts
+// packages/core/src/changes/diff-processor/utils/normalize.ts
 var normalize_original_code = (params) => {
 	const original_code_lines_normalized = [];
 	let line_count = 0;
@@ -2445,7 +2445,7 @@ var normalize_patch_lines = (params) => {
 		patch_lines_normalized
 	};
 };
-// ../../packages/core/src/changes/diff-processor/utils/parse-blocks.ts
+// packages/core/src/changes/diff-processor/utils/parse-blocks.ts
 var parse_patch_blocks = (params) => {
 	const search_replace_blocks = [];
 	let search_chunks = [];
@@ -2530,7 +2530,7 @@ var parse_patch_blocks = (params) => {
 	push_block();
 	return search_replace_blocks;
 };
-// ../../packages/core/src/changes/diff-processor/utils/match-blocks.ts
+// packages/core/src/changes/diff-processor/utils/match-blocks.ts
 var match_blocks = (params) => {
 	let previous_found_index = 0;
 	for (let i = 0; i < params.search_replace_blocks.length; i++) {
@@ -2684,7 +2684,7 @@ var match_blocks = (params) => {
 		} else block.search_block_start_index = -2;
 	}
 };
-// ../../packages/core/src/changes/diff-processor/utils/apply-blocks.ts
+// packages/core/src/changes/diff-processor/utils/apply-blocks.ts
 var apply_blocks = (params) => {
 	const result_lines = [...params.original_code_lines];
 	for (const block of params.valid_blocks) {
@@ -2724,7 +2724,7 @@ var apply_blocks = (params) => {
 	}
 	return result_lines.join("");
 };
-// ../../packages/core/src/changes/diff-processor/diff-processor.ts
+// packages/core/src/changes/diff-processor/diff-processor.ts
 var apply_diff = (params) => {
 	const original_code_normalized = params.original_code.replace(/\r\n/g, "\n");
 	if (original_code_normalized.trim() === "") {
@@ -2757,7 +2757,7 @@ var apply_diff = (params) => {
 		original_code_lines
 	});
 };
-// ../../packages/core/src/changes/truncations-processor/utils/find-line-sequence.ts
+// packages/core/src/changes/truncations-processor/utils/find-line-sequence.ts
 var find_line_sequence = (params) => {
 	if (params.sequence.length === 0) return -1;
 	if (params.start_idx >= params.lines.length) return -1;
@@ -2779,10 +2779,10 @@ var find_line_sequence = (params) => {
 	}
 	return -1;
 };
-// ../../packages/core/src/changes/truncations-processor/utils/is-truncation-line.ts
+// packages/core/src/changes/truncations-processor/utils/is-truncation-line.ts
 var TRUNCATION_REGEX = /^\s*(\/\/|#|<!--|;|"|'|\{\/\*|\/\*)\s*\.{3,}.*\s*$/;
 var is_truncation_line = (line) => TRUNCATION_REGEX.test(line);
-// ../../packages/core/src/changes/truncations-processor/truncations-processor.ts
+// packages/core/src/changes/truncations-processor/truncations-processor.ts
 var process_truncations = (new_text, original_text) => {
 	const new_lines = new_text.replace(/[\u200B-\u200F\uFEFF]/g, "").split(/\r?\n/);
 	const original_lines = original_text.split(/\r?\n/);
@@ -2857,7 +2857,7 @@ var process_truncations = (new_text, original_text) => {
 	if (original_text.endsWith("\n") && !result.endsWith("\n")) return result + "\n";
 	return result;
 };
-// ../../packages/core/src/changes/search-replace-processor/apply-search-replace-to-content/apply-search-replace-to-content.ts
+// packages/core/src/changes/search-replace-processor/apply-search-replace-to-content/apply-search-replace-to-content.ts
 var escape_reg_exp = (string) => {
 	return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 };
@@ -2917,7 +2917,7 @@ var apply_search_replace_to_content = (params) => {
 	}
 	return current_content;
 };
-// ../../packages/core/src/changes/search-replace-processor/parse-search-replace-segments.ts
+// packages/core/src/changes/search-replace-processor/parse-search-replace-segments.ts
 var parse_search_replace_segments = (content) => {
 	const lines = content.replace(/\r\n/g, "\n").split("\n");
 	const segments = [];
@@ -2974,7 +2974,7 @@ var parse_search_replace_segments = (content) => {
 	});
 	return segments;
 };
-// ../../packages/core/src/apply/strategies.ts
+// packages/core/src/apply/strategies.ts
 var preserve_trailing_newline = (original_content, new_content) => {
 	if (original_content.endsWith("\n") && !new_content.endsWith("\n")) return new_content + "\n";
 	return new_content;
@@ -3004,7 +3004,7 @@ var compute_proposed_content = (params) => {
 	});
 	return preserve_trailing_newline(original_content, content);
 };
-// ../../packages/core/src/utils/safe-path.ts
+// packages/core/src/utils/safe-path.ts
 var FORBIDDEN_PREFIXES = [
 	".git",
 	"node_modules",
@@ -3034,7 +3034,7 @@ var resolve_safe_path = (workspace_root, relative_path) => {
 	if (resolved !== root && !resolved.startsWith(root_with_sep)) return null;
 	return resolved;
 };
-// ../../packages/core/src/apply/apply-response.ts
+// packages/core/src/apply/apply-response.ts
 var find_root = (roots, workspace_name) => {
 	if (workspace_name) {
 		const named = roots.find((r) => r.name === workspace_name);
@@ -3215,7 +3215,7 @@ var to_original_states = (changes) => changes.map((change) => ({
 	proposed_content: change.proposed_content,
 	apply_failed: change.apply_failed
 }));
-// ../../packages/core/src/apply/revert.ts
+// packages/core/src/apply/revert.ts
 /**
 * Restores files to the content recorded before an apply. Mirrors the editor's
 * `undo_files`: delete files that were created, move renames back, recreate
@@ -3281,7 +3281,7 @@ var revert_changes = async (params) => {
 		failed
 	};
 };
-// ../../packages/shared/src/constants/chatbots.ts
+// packages/shared/src/constants/chatbots.ts
 var CHATBOTS = {
 	"AI Studio": {
 		url: "https://aistudio.google.com/prompts/new_chat",
@@ -3468,7 +3468,7 @@ var CHATBOTS = {
 	"Z (Global)": { url: "https://chat.z.ai/" },
 	"Z (China)": { url: "https://zchat.z.ai/" }
 };
-// src/methods.ts
+// apps/sidecar/src/methods.ts
 var resolve_relative = (root_path, absolute_path) => path.relative(root_path, absolute_path).replace(/\\/g, "/");
 /**
 * Collects context files for the prompt: the host's selection (or an explicit
@@ -3508,6 +3508,25 @@ var register_methods = (deps) => {
 		pid: process.pid
 	}));
 	peer.register("browsers.list", () => ({ browsers: server.get_browsers() }));
+	peer.register("workspace.files", async () => {
+		const roots = await host.get_workspace_roots();
+		if (roots.length === 0) return {
+			roots: [],
+			files: []
+		};
+		const root = roots[0];
+		const files = await host.list_workspace_files(root);
+		return {
+			root: {
+				name: root.name,
+				path: root.path
+			},
+			files: files.map((relative) => ({
+				relative,
+				absolute: path.join(root.path, relative)
+			}))
+		};
+	});
 	peer.register("prompt.build", async (params) => {
 		const files = await collect_context_files({
 			host,
@@ -3599,7 +3618,7 @@ var register_methods = (deps) => {
 		files: state.last_states.map((s) => s.file_path)
 	}));
 };
-// src/main.ts
+// apps/sidecar/src/main.ts
 var log = (message) => {
 	process.stderr.write(`[cwc-sidecar] ${message}\n`);
 };

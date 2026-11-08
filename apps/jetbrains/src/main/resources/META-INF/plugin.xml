@@ -1,0 +1,64 @@
+<idea-plugin>
+    <id>dev.cwc.jetbrains</id>
+    <name>Code Web Chat</name>
+
+    <vendor url="https://github.com/chrxmium/CodeWebChat">
+        Code Web Chat fork contributors — unofficial fork of robertpiosik/CodeWebChat (Robert Piosik)
+    </vendor>
+
+    <description><![CDATA[
+        <p>Autofill markdown prompts into web chatbots (ChatGPT, Claude, Gemini, …) and
+        apply their responses with one click.</p>
+
+        <p>This plugin is an <b>unofficial fork</b> of
+        <a href="https://github.com/CodeWebChat/CWC">robertpiosik/CodeWebChat</a>
+        by <b>Robert Piosik</b>. It is not affiliated with, endorsed by or supported by
+        the upstream author. The browser Connector extension and the VS Code extension
+        remain the upstream project's work.</p>
+
+        <p>The plugin talks to the bundled Node sidecar, which implements the same local
+        WebSocket protocol as the upstream editor, so the unmodified
+        "Autofill for Code Web Chat" extension works in Chrome and Firefox.</p>
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow
+            id="Code Web Chat"
+            anchor="right"
+            icon="AllIcons.Toolwindows.ToolWindowMessages"
+            factoryClass="dev.cwc.jetbrains.ui.CwcToolWindowFactory"/>
+
+        <projectService serviceImplementation="dev.cwc.jetbrains.sidecar.SidecarService"/>
+        <projectService serviceImplementation="dev.cwc.jetbrains.ui.CwcContext"/>
+
+        <applicationService serviceImplementation="dev.cwc.jetbrains.settings.CwcSettings"/>
+
+        <applicationConfigurable
+            parentId="tools"
+            instance="dev.cwc.jetbrains.settings.CwcConfigurable"
+            id="dev.cwc.jetbrains.settings"
+            displayName="Code Web Chat"/>
+
+        <notificationGroup id="Code Web Chat" displayType="BALLOON"/>
+    </extensions>
+
+    <actions>
+        <action
+            id="Cwc.ApplyChatResponse"
+            class="dev.cwc.jetbrains.actions.ApplyChatResponseAction"
+            text="Code Web Chat: Apply Chat Response from Clipboard"
+            description="Apply the chat response currently in the clipboard to the project files">
+            <keyboard-shortcut keymap="$default" first-keystroke="alt shift A"/>
+        </action>
+
+        <action
+            id="Cwc.UndoLastChanges"
+            class="dev.cwc.jetbrains.actions.UndoLastChangesAction"
+            text="Code Web Chat: Undo Last Changes"
+            description="Revert the files changed by the last applied chat response">
+            <keyboard-shortcut keymap="$default" first-keystroke="alt shift Z"/>
+        </action>
+    </actions>
+</idea-plugin>

@@ -84,6 +84,23 @@ export const register_methods = (deps: SidecarDeps): void => {
 
   peer.register('browsers.list', () => ({ browsers: server.get_browsers() }))
 
+  // File/context picker for the tool window: relative and absolute paths.
+  peer.register('workspace.files', async () => {
+    const roots = await host.get_workspace_roots()
+    if (roots.length === 0) return { roots: [], files: [] }
+
+    const root = roots[0]
+    const files = await host.list_workspace_files(root)
+
+    return {
+      root: { name: root.name, path: root.path },
+      files: files.map((relative) => ({
+        relative,
+        absolute: path.join(root.path, relative)
+      }))
+    }
+  })
+
   peer.register('prompt.build', async (params: any) => {
     const files = await collect_context_files({
       host,

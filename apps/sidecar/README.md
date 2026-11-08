@@ -51,6 +51,7 @@ silently stealing the port.
 | `response.apply`  | `{response, preview?, instructions?}`                                                                             | `{applied, rejected, strategy, error?}` |
 | `response.revert` | —                                                                                                                 | `{reverted, failed, error?}`            |
 | `state.status`    | —                                                                                                                 | `{can_revert, files}`                   |
+| `workspace.files` | —                                                                                                                 | `{root, files: [{relative, absolute}]}` |
 
 ## Notifications to the plugin
 
