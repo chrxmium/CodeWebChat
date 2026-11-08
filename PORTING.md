@@ -11,14 +11,14 @@ Audited at commit `2b1f02eab` (`main`, 8 Nov 2026).
 
 ### At HEAD
 
-| Path | Content |
-| --- | --- |
-| `apps/editor/LICENSE` | `Copyright © 2026 Robert Piosik` — the only licence file in the tree |
-| `LICENSE` (repo root) | **absent** |
-| `apps/browser/LICENSE` | **absent** |
-| `packages/*/LICENSE` | **absent** |
-| every `package.json` | **no `license` field** (`grep -rn '"license"' --include=package.json .` → no matches) |
-| `apps/browser/src/manifest.json` | no licence field (`author: Robert Piosik`) |
+| Path                             | Content                                                                               |
+| -------------------------------- | ------------------------------------------------------------------------------------- |
+| `apps/editor/LICENSE`            | `Copyright © 2026 Robert Piosik` — the only licence file in the tree                  |
+| `LICENSE` (repo root)            | **absent**                                                                            |
+| `apps/browser/LICENSE`           | **absent**                                                                            |
+| `packages/*/LICENSE`             | **absent**                                                                            |
+| every `package.json`             | **no `license` field** (`grep -rn '"license"' --include=package.json .` → no matches) |
+| `apps/browser/src/manifest.json` | no licence field (`author: Robert Piosik`)                                            |
 
 So HEAD carries an all-rights-reserved copyright line and no open-source grant. The
 README does not describe the project as open source.
@@ -64,14 +64,14 @@ for the port.
 pnpm workspace (`pnpm-workspace.yaml`: `apps/*`, `packages/*`), TypeScript everywhere,
 Vite (rolldown) for bundling the extension/webviews, Jest + ts-jest for tests.
 
-| Area | Path | Files | Role |
-| --- | --- | --- | --- |
-| VS Code extension | `apps/editor` | 1111 | The editor product. Package `gemini-coder`, display name "Code Web Chat", `publisher: robertpiosik`. Hosts the webview UI, commands, apply pipeline, and spawns the WebSocket server process. |
-| Connector (browser extension) | `apps/browser` | 61 | MV3 Chrome extension ("Autofill for Code Web Chat"). Background service worker owns the WebSocket; content scripts autofill prompts and inject the *Apply Response* button. |
-| Website | `apps/web` | 12 | Next.js marketing site (`codeweb.chat`). Out of scope. |
-| Shared types/utilities | `packages/shared` | 23 | `constants/websocket.ts`, `constants/chatbots.ts`, `types/websocket-message.ts`, logger, prompt-symbol helpers. Imported by **both** editor and browser via the `@shared` alias. |
-| UI kit | `packages/ui` | 293 | React components/styles for the editor webviews and Storybook. Out of scope. |
-| Tests | — | 13 spec files | `jest.config.js` at the root runs `apps/editor` (own config) plus `packages/shared`. |
+| Area                          | Path              | Files         | Role                                                                                                                                                                                          |
+| ----------------------------- | ----------------- | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| VS Code extension             | `apps/editor`     | 1111          | The editor product. Package `gemini-coder`, display name "Code Web Chat", `publisher: robertpiosik`. Hosts the webview UI, commands, apply pipeline, and spawns the WebSocket server process. |
+| Connector (browser extension) | `apps/browser`    | 61            | MV3 Chrome extension ("Autofill for Code Web Chat"). Background service worker owns the WebSocket; content scripts autofill prompts and inject the _Apply Response_ button.                   |
+| Website                       | `apps/web`        | 12            | Next.js marketing site (`codeweb.chat`). Out of scope.                                                                                                                                        |
+| Shared types/utilities        | `packages/shared` | 23            | `constants/websocket.ts`, `constants/chatbots.ts`, `types/websocket-message.ts`, logger, prompt-symbol helpers. Imported by **both** editor and browser via the `@shared` alias.              |
+| UI kit                        | `packages/ui`     | 293           | React components/styles for the editor webviews and Storybook. Out of scope.                                                                                                                  |
+| Tests                         | —                 | 13 spec files | `jest.config.js` at the root runs `apps/editor` (own config) plus `packages/shared`.                                                                                                          |
 
 Entry points:
 
@@ -160,8 +160,13 @@ Three separate mechanisms, all enforced in `verifyClient` of the server:
 3. **Browser → server:** WebSocket `Origin` allow-list — nothing else:
 
    ```ts
-   if (origin === 'chrome-extension://ljookipcanaglfaocjbgdicfbdhhjffp') return cb(true)
-   if (process.env.DEV_CHROME_EXTENSION_ID && origin == `chrome-extension://${process.env.DEV_CHROME_EXTENSION_ID}`) return cb(true)
+   if (origin === 'chrome-extension://ljookipcanaglfaocjbgdicfbdhhjffp')
+     return cb(true)
+   if (
+     process.env.DEV_CHROME_EXTENSION_ID &&
+     origin == `chrome-extension://${process.env.DEV_CHROME_EXTENSION_ID}`
+   )
+     return cb(true)
    // Firefox: Wildcard fallback (Firefox extensions get random origins, making exact matches impossible)
    if (origin && origin.startsWith('moz-extension://')) return cb(true)
    return cb(false, 403, 'Forbidden: Invalid Origin')
@@ -175,16 +180,16 @@ Three separate mechanisms, all enforced in `verifyClient` of the server:
 Canonical definitions: `packages/shared/src/types/websocket-message.ts` (shared by both
 apps, so no drift is possible).
 
-| `action` | Direction | Payload (beyond `action`) |
-| --- | --- | --- |
-| `initialize-chat` | editor → server → browser | `text`, `url`, `client_id`, `chatbot?`, `model?`, `target_browser_id?`, `reasoning_effort?`, `system_instructions?`, `options?[]`, `raw_instructions?`, `inject_apply_response_button?` |
-| `apply-response` | browser → server → editor | `client_id`, `raw_instructions?`, `web_configuration_details? {chatbot, model?, reasoning_effort?}` |
-| `browser-connection-status` | server → editor | `connected_browsers: [{id, version, user_agent, profile_name?}]` |
-| `client-id-assignment` | server → editor | `client_id` |
-| `connected` | server → browser | `id` |
-| `vscode-client-connected` / `vscode-client-disconnected` | server → browser | `client_id` |
-| `forwarded-ports` | editor → server → browsers | `ports[]`, plus `client_id` added by the server |
-| `ping` / `pong` | both | — |
+| `action`                                                 | Direction                  | Payload (beyond `action`)                                                                                                                                                               |
+| -------------------------------------------------------- | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `initialize-chat`                                        | editor → server → browser  | `text`, `url`, `client_id`, `chatbot?`, `model?`, `target_browser_id?`, `reasoning_effort?`, `system_instructions?`, `options?[]`, `raw_instructions?`, `inject_apply_response_button?` |
+| `apply-response`                                         | browser → server → editor  | `client_id`, `raw_instructions?`, `web_configuration_details? {chatbot, model?, reasoning_effort?}`                                                                                     |
+| `browser-connection-status`                              | server → editor            | `connected_browsers: [{id, version, user_agent, profile_name?}]`                                                                                                                        |
+| `client-id-assignment`                                   | server → editor            | `client_id`                                                                                                                                                                             |
+| `connected`                                              | server → browser           | `id`                                                                                                                                                                                    |
+| `vscode-client-connected` / `vscode-client-disconnected` | server → browser           | `client_id`                                                                                                                                                                             |
+| `forwarded-ports`                                        | editor → server → browsers | `ports[]`, plus `client_id` added by the server                                                                                                                                         |
+| `ping` / `pong`                                          | both                       | —                                                                                                                                                                                       |
 
 Routing rules in the server (`_handle_message`): `initialize-chat` goes to
 `target_browser_id` (or the most recently connected browser); `apply-response` goes to the
@@ -199,7 +204,7 @@ script refuses any URL whose hostname is not a known chatbot host
 ### "Initialize, never scrape"
 
 The content script fills the composer with the prompt text and never submits it. The
-*Apply Response* button is explicitly an alias for the chatbot's own copy button: it
+_Apply Response_ button is explicitly an alias for the chatbot's own copy button: it
 copies the response to the clipboard and posts `{action:'apply-response'}` to the
 background script, and the editor then **reads the clipboard**. Message flow is
 one-directional for content — nothing is ever extracted from the DOM and sent back.
@@ -257,9 +262,9 @@ Input is `args.response` or, when absent, **the clipboard**.
 1. **Parse** (`parse_response`, `response-parser.ts`) — first match wins:
    commit message → intelligent file search results → code-at-cursor → patch repair → a
    response containing conflict markers / hunk headers / `diff` fences is parsed as
-   **diffs** → otherwise **standard file blocks** (`### Updated file: `path`` heading +
-   fenced block; also `### New file:`, `### Deleted file:`, `### Renamed file: `a` (old) `b` (new)`).
-2. **Edit format** is not detected at apply time; it is a setting used to *ask* the model
+   **diffs** → otherwise **standard file blocks** (`### Updated file: `path``heading +
+fenced block; also`### New file:`, `### Deleted file:`, `### Renamed file: `a` (old) `b` (new)`).
+2. **Edit format** is not detected at apply time; it is a setting used to _ask_ the model
    for a shape, and the applied strategy is detected from the response
    (`process_response`):
    - `diff` items → `apply_git_patch`: try `git apply --whitespace=fix --ignore-whitespace --recount`
@@ -273,7 +278,7 @@ Input is `args.response` or, when absent, **the clipboard**.
 3. **Safety:** `sanitize_file_name` + `create_safe_path` reject traversal and any `.git`
    segment; excluded top-level folders (`.git`, `node_modules`, `vendor`, `.venv`,
    `dist`, `build`, `target`, `bin`, `obj`) are filtered out of parsed items.
-4. **Checkpoint + preview:** a checkpoint is created *before* files are touched; every
+4. **Checkpoint + preview:** a checkpoint is created _before_ files are touched; every
    changed file is opened in a diff (`preview.ts` → `show_diff_with_actions`) where the
    user accepts/rejects per file, can jump between files, and can edit the proposed
    content. Rejected/aborted files are reverted with `undo_files`.
@@ -301,21 +306,24 @@ through `build_prompt_payload.ts` → `FilesCollector.collect_files` →
 `PromptBuilder.build_prompt` (`apps/editor/src/utils/prompt-builder.ts`).
 
 1. **Context files.** `FilesCollector` unions selected workspace files, files selected in
-   the *Open Editors* view and additional paths, deduplicates, and splits them into
+   the _Open Editors_ view and additional paths, deduplicates, and splits them into
    `other_files` (older than 1.5 h, ordered by selection timestamp, 20 s bucket + natural
    sort) and `recent_files` (modified within 1.5 h, oldest first). Each becomes:
 
-   ```
+   ````
    ### File: `relative/path`      (or `workspace/relative/path` in a multi-root workspace)
 
    ```<fence one backtick longer than any inside>
    <content>
-   ```
+   ````
+
    ```
 
    Binary files are rendered as the literal `Binary file`. Ranges (`setRanges`) are
    applied to the content before fencing. Ordering is deliberate for prompt-cache hit
    rates: unchanged files first, recently modified ones after, instructions last.
+   ```
+
 2. **Instructions.** The composer text and each completed task go through
    `replace_symbols` (`@` files, `#` snippets/templates/saved contexts/commits/skills,
    website and image symbols); images may be stripped for clipboard/autofill.
@@ -324,14 +332,14 @@ through `build_prompt_payload.ts` → `FilesCollector.collect_files` →
    skill definitions, `# Output formatting`, `# Requirements`, `# Completed tasks`, then
    `# Task` followed by the user instructions. `full_prompt` is `part1 + part2`; the
    `part1`/`part2` split only matters to API calls, the browser always receives
-   `full_prompt`. When "accuracy boost" is on, the task block is *also* prepended at the
+   `full_prompt`. When "accuracy boost" is on, the task block is _also_ prepended at the
    top so instructions bracket the context (prompt-organization best practice).
 4. **Edit-format instructions** (`constants/edit-format-instructions.ts`) are appended
-   only in *edit* mode and only for chatbot targets: `WHOLE` (full file), `TRUNCATED`
+   only in _edit_ mode and only for chatbot targets: `WHOLE` (full file), `TRUNCATED`
    (ellipsis comments), `SEARCH_REPLACE` (conflict markers), `DIFF` (unified diff). Each
-   starts from the same `intro` (explanation + `### … file: `path`` heading) and one
-   worked example, so the parser in §5 can find files reliably. Ask/intelligent-search/
-   patch-repair/commit-message prompts live in `constants/instructions.ts`.
+   starts from the same `intro` (explanation + `### … file: `path``heading) and one
+worked example, so the parser in §5 can find files reliably. Ask/intelligent-search/
+patch-repair/commit-message prompts live in`constants/instructions.ts`.
 5. **Delivery.** `WebSocketManager.initialize_chat` resolves the chatbot URL (user id and
    model overrides for AI Studio/Gemini/Arena/Open WebUI, same-host URL override guard),
    picks the target browser, and sends `initialize-chat` with `text`, `url`, `chatbot`,
@@ -439,3 +447,127 @@ Deviations to be recorded as the port proceeds:
   editor client, which the sidecar keeps.
 - **Gradle/`gradlew` and `web-ext` cannot be executed in this sandbox** if the JVM or the
   npm registry is unavailable; each phase reports what was actually run.
+
+---
+
+## 9. Phase 1 implementation — `packages/core`
+
+`@cwc/core` now holds everything that does not need an editor:
+
+```
+packages/core/src
+  types.ts                 ProposedChange, response types
+  host.ts                  Host interface (see below)
+  prompt/                  build-prompt, prompt-builder, edit-format-instructions,
+                           instructions, diff-placeholders
+  response-parser/         diff / truncated / search-replace / whole-file parsers + cases
+  changes/                 diff, truncation and search-replace processors
+  apply/                   strategies, apply-response (plan_changes, apply_response,
+                           to_original_states), revert
+  utils/                   normalize-path, get-markdown-backticks, safe-path,
+                           extract-paths-from-bullet-list, cleanup-api-response
+```
+
+The `Host` boundary is deliberately small:
+
+| Member                                                  | Used for                              |
+| ------------------------------------------------------- | ------------------------------------- |
+| `get_workspace_roots()`                                 | resolving paths and relative names    |
+| `read_file`, `write_file`, `delete_file`, `rename_file` | the apply and revert pipeline         |
+| `exists`, `list_workspace_files`                        | path validation, file pickers         |
+| `get_selected_files()`                                  | context selection when none is passed |
+| `confirm_changes(changes, instructions)`                | the preview-before-apply step         |
+| `get_setting`, `set_setting`, `get_state`, `set_state`  | edit format, undo bookkeeping         |
+
+Deviations from the plan, both intentional:
+
+- The VS Code app is still `apps/editor` (not `apps/vscode`): renaming it would break
+  `vsce` packaging paths and the existing scripts for no functional gain.
+- Instead of rewriting the apply command, `apps/editor/src/host/vscode-host.ts`
+  implements `Host` with the existing `workspace.applyEdit` / `vscode.diff` behaviour, so
+  the VS Code extension is unchanged. The old module paths remain as one-line re-export
+  shims (`export * from '@cwc/core/...'`), which is why all pre-existing tests still pass
+  unmodified.
+
+## 10. Phase 2 implementation — `apps/sidecar`
+
+- **Transport**: newline-delimited JSON-RPC 2.0 on stdin/stdout (`src/json-rpc.ts`).
+  stdout is protocol-only; all logging goes to stderr, because a stray `console.log`
+  would corrupt the stream.
+- **Methods**: `ping`, `browsers.list`, `workspace.files`, `prompt.build`,
+  `chat.initialize`, `response.apply`, `response.revert`, `state.status`; notifications
+  `sidecar.ready`, `browsers.changed`, `chat.applyResponse`, `host.info`, `host.error`.
+- **Host**: with no `--workspace` the sidecar issues `host.*` requests back to the editor
+  (`RpcHost`); with `--workspace` it uses the filesystem and auto-accepts changes
+  (`FsHost`), which is what the standalone tests exercise.
+- **Protocol compatibility**: the sidecar is the WebSocket _server_ and reuses the
+  upstream handshake, health HMAC, origin rules (`chrome-extension://ljookipcanaglfaocjbgdicfbdhhjffp`,
+  any `moz-extension://`, `DEV_CHROME_EXTENSION_ID`) and the `initialize-chat` /
+  `apply-response` / `client-id-assignment` / `ping` messages. **No protocol change was
+  needed.** An editor-role client with the shared `~/.cwc/.websocket-token` is accepted
+  too, so the VS Code extension may coexist.
+- **Port conflicts**: `EADDRINUSE` produces an explanatory error rather than silently
+  taking over a server that belongs to another editor.
+- **Tests** (`json-rpc.spec.ts`, `protocol.spec.ts`, `methods.spec.ts`) run with no editor:
+  a real WebSocket server is driven by fake browser clients, including the Chrome and
+  Firefox origins, a rejected foreign origin (`403`) and an unauthenticated editor
+  (`401`).
+
+## 11. Phase 3 implementation — `apps/jetbrains`
+
+Kotlin + IntelliJ Platform Gradle Plugin 2.6, building against the free 2025.2 community
+platform and installable in WebStorm 2025.2+ (`sinceBuild 252`, `untilBuild 253.*`); set
+`cwcWebStorm=true` to resolve WebStorm for `runIde`.
+
+| Component        | Responsibility                                                                            |
+| ---------------- | ----------------------------------------------------------------------------------------- |
+| `SidecarService` | spawns `node <plugin>/sidecar/sidecar.js --port …`, timeouts, stderr passthrough, dispose |
+| `JsonRpcClient`  | id-matched requests, notification dispatch, `host.*` handlers                             |
+| `IdeHostHandler` | `host.*`: VFS reads, `WriteCommandAction` writes, `DiffManager` preview, pickers          |
+| `CwcPanel`       | tool window: context picker, instructions, chatbot + edit format, Initialize              |
+| `Runner`         | shared initialize/apply/revert flow with progress and notifications                       |
+| `CwcSettings`    | `PersistentStateComponent`: Node path, sidecar override, port, last chatbot/format        |
+| Actions          | _Apply Chat Response from Clipboard_ (`Alt+Shift+A`), _Undo Last Changes_ (`Alt+Shift+Z`) |
+
+Behaviour preserved from VS Code: the Connector's Apply button still only copies, and
+`chat.applyResponse` causes the plugin to apply **that clipboard content**, with a
+per-file `DiffManager` preview (Apply / Skip / Cancel all) before any write. Writes go
+through `WriteCommandAction` + `Document`, so IDE undo, VFS refresh and save hooks work.
+
+`apps/sidecar` gained one method, `workspace.files`, so the tool window can list the
+workspace without a second implementation of the file walker.
+
+## 12. Phase 4 implementation — Firefox
+
+Phase 0 found a working MV2 build, so the Connector was **not** rewritten:
+
+- `scripts/create-firefox-build.ts` now also adds the required attribution to the Firefox
+  description (`… Unofficial fork of CodeWebChat by Robert Piosik.`), and a stable
+  `browser_specific_settings.gecko.id` (`cwc-connector-fork@chrxmium.github`,
+  `strict_min_version: 115.0`) so `web-ext sign` and update replacement work. The Chrome
+  manifest is untouched.
+- `apps/browser/package.json`: `web-ext` devDependency plus `firefox:lint`, `firefox:run`
+  (temporary load) and `firefox:sign` (`--channel unlisted`) scripts.
+- `apps/browser/README.md`: Firefox section covering the MV2/background-script build, the
+  run/lint/sign commands and where to obtain AMO API keys.
+- The background script opens the WebSocket (not a content script) and uses the same
+  protocol and port as Chrome, so the new sidecar and the VS Code extension both serve it.
+
+## 13. Verification log
+
+| Check                                        | Result                                                                                                                         |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `npx jest` (root, core + sidecar + editor)   | **pass** — 18 suites, 206 tests                                                                                                |
+| `tsc -p apps/sidecar/tsconfig.json --noEmit` | **pass**                                                                                                                       |
+| `cd apps/editor && npx tsc --noEmit`         | **pass**                                                                                                                       |
+| `node apps/sidecar/scripts/build.mjs`        | **pass** — `out/sidecar.js` bundled                                                                                            |
+| `cd apps/browser && npm run build`           | **pass** — `dist/`, `dist-firefox/` and the zip archives                                                                       |
+| `npx web-ext lint --source-dir dist-firefox` | **pass** — 0 errors, 0 notices, 4 warnings (`MISSING_DATA_COLLECTION_PERMISSIONS`, 3× `UNSAFE_VAR_ASSIGNMENT` for `innerHTML`) |
+| `./gradlew build` (apps/jetbrains)           | **not run** — no JDK/JVM in the environment this port was written in                                                           |
+| `./gradlew runIde`                           | **not run** — same reason; also needs a GUI/WebStorm licence                                                                   |
+| Firefox run against the sidecar              | **not run** — no Firefox, no GUI, and the Connector needs a signed-in chat session                                             |
+
+The unresolved verification gaps are the Kotlin compilation and any real IDE/browser
+session. Everything else in the MVP path (prompt build → initialize → apply → revert,
+plus the WebSocket compatibility the Connector depends on) is covered by the standalone
+tests.
