@@ -1,0 +1,28 @@
+{
+  "name": "@cwc/sidecar",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Node sidecar for the Code Web Chat JetBrains plugin: JSON-RPC on stdio plus the Connector WebSocket protocol. Unofficial fork of robertpiosik/CodeWebChat.",
+  "author": "Code Web Chat fork contributors; upstream: Robert Piosik (https://github.com/CodeWebChat/CWC)",
+  "upstream": {
+    "repository": "https://github.com/CodeWebChat/CWC",
+    "author": "Robert Piosik"
+  },
+  "main": "out/sidecar.js",
+  "bin": {
+    "cwc-sidecar": "out/sidecar.js"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@cwc/core": "workspace:*",
+    "ws": "8.21.3"
+  },
+  "devDependencies": {
+    "@types/node": "22.x",
+    "@types/ws": "8.18.1",
+    "vite": "8.3.6"
+  }
+}
