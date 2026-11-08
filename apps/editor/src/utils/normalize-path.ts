@@ -1,3 +1,2 @@
-export const normalize_path = (file_path: string): string => {
-  return file_path.replace(/\\/g, '/')
-}
+// Moved to @cwc/core (editor-independent). Shim keeps existing imports working.
+export * from '@cwc/core/utils/normalize-path'

@@ -1,4 +1,4 @@
-import { cleanup_api_response } from '@/utils/cleanup-api-response'
+import { cleanup_api_response } from '../../../utils/cleanup-api-response'
 import {
   PatchRepairItem,
   TextItem,

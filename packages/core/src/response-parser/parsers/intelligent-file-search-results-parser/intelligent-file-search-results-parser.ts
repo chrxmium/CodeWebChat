@@ -1,4 +1,4 @@
-import { extract_paths_from_bullet_list } from '@/utils/extract-paths-from-bullet-list'
+import { extract_paths_from_bullet_list } from '../../../utils/extract-paths-from-bullet-list'
 
 export type IntelligentFileSearchResultsItem = {
   type: 'intelligent-file-search-results'

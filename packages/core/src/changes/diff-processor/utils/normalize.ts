@@ -19,7 +19,10 @@ export const normalize_original_code = (params: {
       .replace(/\r/g, '')
       .replace(/\n/g, '')
 
-    const clean_invisibles = line_normalized.replace(/[\u200B-\u200F\uFEFF]/g, '')
+    const clean_invisibles = line_normalized.replace(
+      /[\u200B-\u200F\uFEFF]/g,
+      ''
+    )
     let line_normalized_processed = clean_invisibles.replace(/\s+/g, '')
 
     if (params.use_strict_whitespace) {
@@ -65,9 +68,11 @@ export const normalize_patch_lines = (params: {
     }
 
     const cleaned_line = line.replace(/[\u200B-\u200F\uFEFF]/g, '')
-    
+
     patch_lines_original.push(
-      cleaned_line.startsWith(' ') ? cleaned_line.substring(1, cleaned_line.length) : cleaned_line
+      cleaned_line.startsWith(' ')
+        ? cleaned_line.substring(1, cleaned_line.length)
+        : cleaned_line
     )
 
     let line_normalized = cleaned_line

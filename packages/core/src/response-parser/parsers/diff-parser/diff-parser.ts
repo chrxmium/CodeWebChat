@@ -13,7 +13,7 @@ import {
   find_patch_start_index,
   format_hunk_headers
 } from './helpers'
-import { normalize_path } from '@/utils/normalize-path'
+import { normalize_path } from '../../../utils/normalize-path'
 
 type DiffParserItem = DiffItem | TextItem | InlineFileItem
 

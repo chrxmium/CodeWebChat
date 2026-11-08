@@ -328,6 +328,25 @@ importers:
         specifier: 8.3.6
         version: 8.3.6(@types/node@22.20.5)(esbuild@0.18.20)(sass-embedded@1.89.2)(sass@1.93.3)(terser@5.51.2)(yaml@2.5.1)
 
+  apps/sidecar:
+    dependencies:
+      '@cwc/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      ws:
+        specifier: 8.21.3
+        version: 8.21.3(bufferutil@4.0.9)(utf-8-validate@6.0.5)
+    devDependencies:
+      '@types/node':
+        specifier: 22.x
+        version: 22.20.5
+      '@types/ws':
+        specifier: 8.18.1
+        version: 8.18.1
+      vite:
+        specifier: 8.3.6
+        version: 8.3.6(@types/node@22.20.5)(esbuild@0.18.20)(sass-embedded@1.89.2)(sass@1.93.3)(terser@5.51.2)(yaml@2.5.1)
+
   apps/web:
     dependencies:
       '@formatjs/intl-localematcher':
@@ -358,6 +377,12 @@ importers:
       '@types/react-dom':
         specifier: 18.2.19
         version: 18.2.19
+
+  packages/core:
+    devDependencies:
+      '@types/node':
+        specifier: 22.x
+        version: 22.20.5
 
   packages/shared:
     dependencies:

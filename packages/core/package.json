@@ -1,0 +1,22 @@
+{
+  "name": "@cwc/core",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Editor-independent core of Code Web Chat: prompt construction, response parsing and the apply/revert pipeline. Unofficial fork of robertpiosik/CodeWebChat.",
+  "author": "Code Web Chat fork contributors; upstream: Robert Piosik (https://github.com/CodeWebChat/CWC)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chrxmium/CodeWebChat"
+  },
+  "upstream": {
+    "repository": "https://github.com/CodeWebChat/CWC",
+    "author": "Robert Piosik"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "22.x"
+  }
+}

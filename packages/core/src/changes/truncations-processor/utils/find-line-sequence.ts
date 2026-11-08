@@ -13,7 +13,10 @@ export const find_line_sequence = (params: {
   ) {
     let match = true
     for (let j = 0; j < params.sequence.length; j++) {
-      const orig_clean = params.lines[i + j].replace(/[\u200B-\u200F\uFEFF]/g, '')
+      const orig_clean = params.lines[i + j].replace(
+        /[\u200B-\u200F\uFEFF]/g,
+        ''
+      )
       if (orig_clean !== params.sequence[j]) {
         match = false
         break
@@ -29,7 +32,10 @@ export const find_line_sequence = (params: {
   ) {
     let match = true
     for (let j = 0; j < params.sequence.length; j++) {
-      const orig_clean = params.lines[i + j].replace(/[\u200B-\u200F\uFEFF]/g, '')
+      const orig_clean = params.lines[i + j].replace(
+        /[\u200B-\u200F\uFEFF]/g,
+        ''
+      )
       if (orig_clean.trim() !== params.sequence[j].trim()) {
         match = false
         break
