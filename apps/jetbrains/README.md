@@ -60,7 +60,16 @@ WebStorm ──JSON-RPC 2.0 (stdin/stdout)──▶ sidecar (Node) ──WebSock
 pnpm --filter @cwc/sidecar build   # produces apps/sidecar/out/sidecar.js
 cd apps/jetbrains
 ./gradlew build                    # compiles + builds the distributable zip
+./gradlew buildPlugin              # only build/distributions/code-web-chat-<version>.zip
 ./gradlew runIde                   # sandbox IDE with the sidecar bundled
+```
+
+Requirements: JDK 21 (`JAVA_HOME` or on `PATH`) and Node. The Gradle wrapper is
+committed (Gradle 8.14), so no system Gradle is needed.
+
+```bash
+export JAVA_HOME=/path/to/jdk-21   # e.g. Temurin 21
+./gradlew build
 ```
 
 The sandboxed IDE is IntelliJ IDEA Community by default because it needs no
@@ -68,10 +77,12 @@ licence. The plugin only uses platform APIs; to run it on WebStorm itself, set
 `cwcWebStorm=true` in `gradle.properties` (WebStorm needs an activated licence).
 
 `build.gradle.kts` copies `apps/sidecar/out` to `build/sidecar`, then installs it
-as `<plugin>/sidecar/` in the sandbox and in the packaged distribution.
+as `<plugin>/sidecar/` in the sandbox and in the packaged distribution, so
+`build/distributions/code-web-chat-<version>.zip` is self-contained.
 
-If the Gradle wrapper JAR is missing (it is not committed here), generate it
-once with `gradle wrapper --gradle-version 8.14` or run the system `gradle`.
+`buildSearchableOptions` is disabled: it boots a whole IDE to index the settings
+page, which fails on a machine without a display. The only consequence is that
+_Settings → Tools → Code Web Chat_ is not indexed by the IDE's Settings search.
 
 ## Settings
 
@@ -100,9 +111,23 @@ once with `gradle wrapper --gradle-version 8.14` or run the system `gradle`.
 
 ## Verification status
 
-- The sidecar and `packages/core` are covered by Jest tests that run without an
-  editor (`npx jest`).
-- `./gradlew build` / `./gradlew runIde` could **not** be run in the environment
-  this port was written in (no JDK available there), so the Kotlin sources are
-  compiled and exercised only by review, not by a Gradle build. Run the two
-  commands above before trusting the plugin.
+Verified for this commit, with a real JDK (Temurin 21.0.13) and the committed
+Gradle 8.14 wrapper:
+
+- `./gradlew build` — **pass** (_compileKotlin_, _instrumentCode_, _jar_, _check_).
+- `./gradlew buildPlugin` — **pass**; the ZIP lands in
+  `build/distributions/code-web-chat-0.1.0.zip` and contains
+  `code-web-chat/lib/*.jar` plus `code-web-chat/sidecar/sidecar.js`.
+- `npx jest` — **pass**, 18 suites / 206 tests (core, sidecar, editor), plus
+  `npx tsc --noEmit` in `apps/editor` and
+  `npx tsc -p apps/sidecar/tsconfig.json --noEmit` — both **pass**.
+
+Not verified: `./gradlew runIde` needs an X display. The container this was built
+in has no X server, `DISPLAY` is unset, and `sudo` is blocked by `no_new_privs`,
+so `Xvfb` cannot be installed (the bundled JBR also misses
+`libfreetype.so.6`). Running the plugin inside a real IDE, and the end-to-end
+browser round trip, still need a desktop session:
+
+```bash
+cd apps/jetbrains && ./gradlew runIde    # on a desktop, with a browser available
+```

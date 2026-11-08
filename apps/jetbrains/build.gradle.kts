@@ -1,3 +1,4 @@
+import org.gradle.api.tasks.bundling.Zip
 import org.jetbrains.intellij.platform.gradle.tasks.PrepareSandboxTask
 
 plugins {
@@ -109,6 +110,27 @@ tasks.named<PrepareSandboxTask>("prepareSandbox") {
     finalizedBy(installSidecar)
 }
 
+/**
+ * The packaged distribution must carry the sidecar too, so the ZIP is
+ * self-contained: `<plugin>/sidecar/sidecar.js`.
+ */
+tasks.named<Zip>("buildPlugin") {
+    dependsOn(bundleSidecar)
+    from(layout.buildDirectory.dir("sidecar")) {
+        into("sidecar")
+    }
+}
+
 tasks.build {
     dependsOn(bundleSidecar)
+}
+
+/**
+ * `buildSearchableOptions` starts a full IDE to index the plugin's settings for
+ * the IDE's Settings search. That needs a display, and headless CI (this
+ * environment included) has none, so it is disabled. Only the settings-search
+ * entry is affected; the plugin itself is unaffected.
+ */
+tasks.matching { it.name == "buildSearchableOptions" }.configureEach {
+    enabled = false
 }

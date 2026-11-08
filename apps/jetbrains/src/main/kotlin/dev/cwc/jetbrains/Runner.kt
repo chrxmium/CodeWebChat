@@ -60,7 +60,7 @@ object Runner {
 
     fun applyFromClipboard(project: Project, preview: Boolean, automatic: Boolean = false) {
         val clipboard = CopyPasteManager.getInstance()
-            .getContents(DataFlavor.stringFlavor)
+            .getContents<String>(DataFlavor.stringFlavor)
 
         if (clipboard.isNullOrBlank()) {
             notify(project, "The clipboard is empty.", NotificationType.WARNING)

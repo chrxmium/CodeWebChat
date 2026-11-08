@@ -445,8 +445,9 @@ Deviations to be recorded as the port proceeds:
 - **Sidecar lifecycle** in the IDE (Node path discovery, orphaned processes) needs
   explicit handling; the existing server already self-terminates 10 s after the last
   editor client, which the sidecar keeps.
-- **Gradle/`gradlew` and `web-ext` cannot be executed in this sandbox** if the JVM or the
-  npm registry is unavailable; each phase reports what was actually run.
+- **Gradle/`gradlew` needs a JDK**; in the CI-style sandbox the build was run with a
+  Temurin 21 installed into `$HOME/.local/opt` (see §13). `web-ext` needs npm registry
+  access. Each phase reports what was actually run.
 
 ---
 
@@ -555,19 +556,33 @@ Phase 0 found a working MV2 build, so the Connector was **not** rewritten:
 
 ## 13. Verification log
 
-| Check                                        | Result                                                                                                                         |
-| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `npx jest` (root, core + sidecar + editor)   | **pass** — 18 suites, 206 tests                                                                                                |
-| `tsc -p apps/sidecar/tsconfig.json --noEmit` | **pass**                                                                                                                       |
-| `cd apps/editor && npx tsc --noEmit`         | **pass**                                                                                                                       |
-| `node apps/sidecar/scripts/build.mjs`        | **pass** — `out/sidecar.js` bundled                                                                                            |
-| `cd apps/browser && npm run build`           | **pass** — `dist/`, `dist-firefox/` and the zip archives                                                                       |
-| `npx web-ext lint --source-dir dist-firefox` | **pass** — 0 errors, 0 notices, 4 warnings (`MISSING_DATA_COLLECTION_PERMISSIONS`, 3× `UNSAFE_VAR_ASSIGNMENT` for `innerHTML`) |
-| `./gradlew build` (apps/jetbrains)           | **not run** — no JDK/JVM in the environment this port was written in                                                           |
-| `./gradlew runIde`                           | **not run** — same reason; also needs a GUI/WebStorm licence                                                                   |
-| Firefox run against the sidecar              | **not run** — no Firefox, no GUI, and the Connector needs a signed-in chat session                                             |
+| Check                                        | Result                                                                                                                                                                                                    |
+| -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npx jest` (root, core + sidecar + editor)   | **pass** — 18 suites, 206 tests                                                                                                                                                                           |
+| `tsc -p apps/sidecar/tsconfig.json --noEmit` | **pass**                                                                                                                                                                                                  |
+| `cd apps/editor && npx tsc --noEmit`         | **pass**                                                                                                                                                                                                  |
+| `node apps/sidecar/scripts/build.mjs`        | **pass** — `out/sidecar.js` bundled                                                                                                                                                                       |
+| `cd apps/browser && npm run build`           | **pass** — `dist/`, `dist-firefox/` and the zip archives                                                                                                                                                  |
+| `npx web-ext lint --source-dir dist-firefox` | **pass** — 0 errors, 0 notices, 4 warnings (`MISSING_DATA_COLLECTION_PERMISSIONS`, 3× `UNSAFE_VAR_ASSIGNMENT` for `innerHTML`)                                                                            |
+| `./gradlew build` (apps/jetbrains)           | **pass** — Temurin 21.0.13 + Gradle 8.14 wrapper, `BUILD SUCCESSFUL` (`compileKotlin`, `instrumentCode`, `jar`, `check`)                                                                                  |
+| `./gradlew buildPlugin`                      | **pass** — `build/distributions/code-web-chat-0.1.0.zip` (1.9 MB) contains `code-web-chat/lib/*.jar` + `code-web-chat/sidecar/sidecar.js`                                                                 |
+| `./gradlew verifyPluginConfiguration`        | **pass** — part of `check`; descriptor patched with attribution, `since-build 252` / `until-build 253.*`                                                                                                  |
+| `./gradlew runIde`                           | **not run** — needs an X display; the container has no X server, `DISPLAY` is unset, `sudo` is blocked by `no_new_privs` so `xvfb` cannot be installed, and the bundled JBR also lacks `libfreetype.so.6` |
+| Firefox run against the sidecar              | **not run** — no Firefox, no GUI, and the Connector needs a signed-in chat session                                                                                                                        |
 
-The unresolved verification gaps are the Kotlin compilation and any real IDE/browser
-session. Everything else in the MVP path (prompt build → initialize → apply → revert,
-plus the WebSocket compatibility the Connector depends on) is covered by the standalone
-tests.
+The Kotlin sources now compile against the real platform and the plugin ZIP is produced,
+so the remaining verification gap is a live IDE session (`runIde`) and a real browser
+session, not the code.
+
+What the first compile actually surfaced, and how it was fixed:
+
+1. `CopyPasteManager.getContents(DataFlavor.stringFlavor)` is generic in the 2025.2
+   platform (`<T> getContents(flavor): T?`), so `Runner.applyFromClipboard` now passes
+   the type argument explicitly (`getContents<String>(…)`); the follow-on `addProperty`
+   overload error disappeared with it.
+2. `buildSearchableOptions` starts a full IDE to index the settings page and aborts
+   headless (`JBR … exit value 255`, `libfreetype.so.6` missing). It is now disabled in
+   `build.gradle.kts`; only the Settings-search entry for the plugin is affected.
+3. `buildPlugin` packaged only `lib/`, so the distribution was not self-contained: the
+   ZIP task now depends on `bundleSidecar` and packs `build/sidecar` as
+   `code-web-chat/sidecar/`, which `SidecarService` finds at `<plugin>/sidecar/sidecar.js`.
