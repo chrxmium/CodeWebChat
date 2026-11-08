@@ -10,6 +10,14 @@
 
 <p align="center"><strong>Markdown prompts for chatbots, APIs, and CLIs with seamless integration</strong></p>
 
+> [!NOTE]
+> **Unofficial fork.** This repository is an unofficial fork of
+> [robertpiosik/CodeWebChat](https://github.com/CodeWebChat/CWC) by Robert Piosik. It adds a
+> JetBrains (WebStorm) plugin and Firefox support for the Connector browser extension. It is not
+> affiliated with, endorsed by, or supported by the upstream author. All upstream copyright
+> notices, credits and licence files are kept intact — see [NOTICE.md](./NOTICE.md) and
+> [PORTING.md](./PORTING.md).
+
 <p align="center"><img src="https://github.com/CodeWebChat/CWC/raw/HEAD/media/screenshot-1.png"></p>
 
 ## Quick start
