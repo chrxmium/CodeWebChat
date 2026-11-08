@@ -65,16 +65,19 @@ cd apps/jetbrains
 ```
 
 Requirements: JDK 21 (`JAVA_HOME` or on `PATH`) and Node. The Gradle wrapper is
-committed (Gradle 8.14), so no system Gradle is needed.
+committed (Gradle 9.9.0), so no system Gradle is needed. The build targets
+**WebStorm 2026.2.3** (platform build `262.10968.77`) through
+`webstorm("2026.2.3")`, with `sinceBuild 262` and no `untilBuild`.
 
 ```bash
 export JAVA_HOME=/path/to/jdk-21   # e.g. Temurin 21
 ./gradlew build
 ```
 
-The sandboxed IDE is IntelliJ IDEA Community by default because it needs no
-licence. The plugin only uses platform APIs; to run it on WebStorm itself, set
-`cwcWebStorm=true` in `gradle.properties` (WebStorm needs an activated licence).
+The plugin only uses platform APIs, so compiling and packaging need no licence;
+`./gradlew runIde` starts WebStorm itself and therefore needs an activated
+WebStorm licence (WebStorm is free for non-commercial use). Kotlin warnings are
+errors (`allWarningsAsErrors`), so a platform deprecation fails the build.
 
 `build.gradle.kts` copies `apps/sidecar/out` to `build/sidecar`, then installs it
 as `<plugin>/sidecar/` in the sandbox and in the packaged distribution, so
@@ -112,17 +115,21 @@ _Settings → Tools → Code Web Chat_ is not indexed by the IDE's Settings sear
 ## Verification status
 
 Verified for this commit, with a real JDK (Temurin 21.0.13) and the committed
-Gradle 8.14 wrapper:
+Gradle 9.9.0 wrapper, built against WebStorm 2026.2.3 (`262.10968.77`):
 
-- `./gradlew build` — **pass** (_compileKotlin_, _instrumentCode_, _jar_, _check_).
+- `./gradlew build` — **pass** (_compileKotlin_ with `allWarningsAsErrors` and zero
+  warnings, _instrumentCode_, _jar_, _check_).
 - `./gradlew buildPlugin` — **pass**; the ZIP lands in
-  `build/distributions/code-web-chat-0.1.0.zip` and contains
-  `code-web-chat/lib/*.jar` plus `code-web-chat/sidecar/sidecar.js`.
+  `build/distributions/code-web-chat-0.1.0.zip` (349 KB) and contains
+  `code-web-chat/lib/code-web-chat-jetbrains-0.1.0.jar`, `gson-2.11.0.jar`,
+  `error_prone_annotations-2.27.0.jar` plus `code-web-chat/sidecar/sidecar.js`.
+  The patched descriptor reads `<idea-version since-build="262"/>` with no
+  `until-build`.
 - `npx jest` — **pass**, 18 suites / 206 tests (core, sidecar, editor), plus
   `npx tsc --noEmit` in `apps/editor` and
   `npx tsc -p apps/sidecar/tsconfig.json --noEmit` — both **pass**.
 
-Not verified: `./gradlew runIde` needs an X display. The container this was built
+Not verified: `./gradlew runIde` needs an activated WebStorm licence and an X display. The container this was built
 in has no X server, `DISPLAY` is unset, and `sudo` is blocked by `no_new_privs`,
 so `Xvfb` cannot be installed (the bundled JBR also misses
 `libfreetype.so.6`). Running the plugin inside a real IDE, and the end-to-end

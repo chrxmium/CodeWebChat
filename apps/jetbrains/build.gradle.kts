@@ -3,17 +3,15 @@ import org.jetbrains.intellij.platform.gradle.tasks.PrepareSandboxTask
 
 plugins {
     id("java")
-    id("org.jetbrains.kotlin.jvm") version "2.1.20"
-    id("org.jetbrains.intellij.platform") version "2.6.0"
+    id("org.jetbrains.kotlin.jvm") version "2.3.10"
+    id("org.jetbrains.intellij.platform") version "2.20.0"
 }
 
 group = "dev.cwc"
 version = "0.1.0"
 
-val platformVersion: String by project
-val platformSinceBuild: String by project
-val platformUntilBuild: String by project
-val cwcWebStorm: String by project
+val platformVersion = providers.gradleProperty("platformVersion").get()
+val platformSinceBuild = providers.gradleProperty("platformSinceBuild").get()
 
 repositories {
     mavenCentral()
@@ -24,15 +22,10 @@ repositories {
 
 dependencies {
     intellijPlatform {
-        if (cwcWebStorm.toBoolean()) {
-            // WebStorm requires a licence for runIde, but produces a plugin that
-            // is installable in WebStorm and all other 2025.2 IDEs.
-            webstorm(platformVersion)
-        } else {
-            // The plugin only uses platform APIs, so the free community platform
-            // is enough to compile and run the sandbox.
-            intellijIdeaCommunity(platformVersion)
-        }
+        // WebStorm 2026.2.3 (WS-262.10968.77) is the target: the plugin is built
+        // and packaged against the IDE it ships for. `runIde` needs an activated
+        // WebStorm licence, but compiling and packaging do not.
+        webstorm(platformVersion)
         pluginVerifier()
         zipSigner()
     }
@@ -40,7 +33,13 @@ dependencies {
 }
 
 kotlin {
+    // The 262 platform requires Java 21 bytecode for plugins.
     jvmToolchain(21)
+
+    // Deprecations against the 262 platform must break the build, not scroll by.
+    compilerOptions {
+        allWarningsAsErrors.set(true)
+    }
 }
 
 intellijPlatform {
@@ -67,8 +66,8 @@ intellijPlatform {
         }
 
         ideaVersion {
+            // No untilBuild: the plugin stays installable in every later 262+ build.
             sinceBuild = platformSinceBuild
-            untilBuild = platformUntilBuild
         }
     }
 
@@ -83,7 +82,7 @@ intellijPlatform {
  * Copies the built sidecar next to the plugin so it is bundled in the archive.
  * `pnpm --filter @cwc/sidecar build` must run first.
  */
-val bundleSidecar by tasks.registering(Copy::class) {
+val bundleSidecar = tasks.register<Copy>("bundleSidecar") {
     val source = layout.projectDirectory.dir("../sidecar/out")
     from(source)
     into(layout.buildDirectory.dir("sidecar"))
@@ -100,7 +99,7 @@ val bundleSidecar by tasks.registering(Copy::class) {
  * Places the sidecar next to the plugin in the sandbox so `runIde` can spawn it
  * and `buildPlugin` picks it up when zipping the distribution.
  */
-val installSidecar by tasks.registering(Copy::class) {
+val installSidecar = tasks.register<Copy>("installSidecar") {
     dependsOn(bundleSidecar)
     from(layout.buildDirectory.dir("sidecar"))
     into(layout.buildDirectory.dir("sandbox").map { it.dir("code-web-chat/sidecar") })

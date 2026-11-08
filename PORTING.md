@@ -516,9 +516,12 @@ Deviations from the plan, both intentional:
 
 ## 11. Phase 3 implementation — `apps/jetbrains`
 
-Kotlin + IntelliJ Platform Gradle Plugin 2.6, building against the free 2025.2 community
-platform and installable in WebStorm 2025.2+ (`sinceBuild 252`, `untilBuild 253.*`); set
-`cwcWebStorm=true` to resolve WebStorm for `runIde`.
+Kotlin 2.3.10 + IntelliJ Platform Gradle Plugin 2.20.0 on the Gradle 9.9.0 wrapper, built
+directly against **WebStorm 2026.2.3 (build `WS-262.10968.77`)** via `webstorm("2026.2.3")`,
+with `sinceBuild 262` and **no `untilBuild`**, so the artifact stays installable in every
+later 262+ build. Java 21 toolchain (the platform's own runtime is JBR 25, but plugin
+bytecode targets 21) and `allWarningsAsErrors`, so a platform deprecation fails `build`
+instead of scrolling past.
 
 | Component        | Responsibility                                                                            |
 | ---------------- | ----------------------------------------------------------------------------------------- |
@@ -556,19 +559,19 @@ Phase 0 found a working MV2 build, so the Connector was **not** rewritten:
 
 ## 13. Verification log
 
-| Check                                        | Result                                                                                                                                                                                                    |
-| -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npx jest` (root, core + sidecar + editor)   | **pass** — 18 suites, 206 tests                                                                                                                                                                           |
-| `tsc -p apps/sidecar/tsconfig.json --noEmit` | **pass**                                                                                                                                                                                                  |
-| `cd apps/editor && npx tsc --noEmit`         | **pass**                                                                                                                                                                                                  |
-| `node apps/sidecar/scripts/build.mjs`        | **pass** — `out/sidecar.js` bundled                                                                                                                                                                       |
-| `cd apps/browser && npm run build`           | **pass** — `dist/`, `dist-firefox/` and the zip archives                                                                                                                                                  |
-| `npx web-ext lint --source-dir dist-firefox` | **pass** — 0 errors, 0 notices, 4 warnings (`MISSING_DATA_COLLECTION_PERMISSIONS`, 3× `UNSAFE_VAR_ASSIGNMENT` for `innerHTML`)                                                                            |
-| `./gradlew build` (apps/jetbrains)           | **pass** — Temurin 21.0.13 + Gradle 8.14 wrapper, `BUILD SUCCESSFUL` (`compileKotlin`, `instrumentCode`, `jar`, `check`)                                                                                  |
-| `./gradlew buildPlugin`                      | **pass** — `build/distributions/code-web-chat-0.1.0.zip` (1.9 MB) contains `code-web-chat/lib/*.jar` + `code-web-chat/sidecar/sidecar.js`                                                                 |
-| `./gradlew verifyPluginConfiguration`        | **pass** — part of `check`; descriptor patched with attribution, `since-build 252` / `until-build 253.*`                                                                                                  |
-| `./gradlew runIde`                           | **not run** — needs an X display; the container has no X server, `DISPLAY` is unset, `sudo` is blocked by `no_new_privs` so `xvfb` cannot be installed, and the bundled JBR also lacks `libfreetype.so.6` |
-| Firefox run against the sidecar              | **not run** — no Firefox, no GUI, and the Connector needs a signed-in chat session                                                                                                                        |
+| Check                                        | Result                                                                                                                                                                                                                           |
+| -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npx jest` (root, core + sidecar + editor)   | **pass** — 18 suites, 206 tests                                                                                                                                                                                                  |
+| `tsc -p apps/sidecar/tsconfig.json --noEmit` | **pass**                                                                                                                                                                                                                         |
+| `cd apps/editor && npx tsc --noEmit`         | **pass**                                                                                                                                                                                                                         |
+| `node apps/sidecar/scripts/build.mjs`        | **pass** — `out/sidecar.js` bundled                                                                                                                                                                                              |
+| `cd apps/browser && npm run build`           | **pass** — `dist/`, `dist-firefox/` and the zip archives                                                                                                                                                                         |
+| `npx web-ext lint --source-dir dist-firefox` | **pass** — 0 errors, 0 notices, 4 warnings (`MISSING_DATA_COLLECTION_PERMISSIONS`, 3× `UNSAFE_VAR_ASSIGNMENT` for `innerHTML`)                                                                                                   |
+| `./gradlew build` (apps/jetbrains)           | **pass** — Temurin 21.0.13 + Gradle 9.9.0 + plugin 2.20.0 against WebStorm 2026.2.3 (`262.10968.77`), `BUILD SUCCESSFUL` (`compileKotlin` with `allWarningsAsErrors`, `instrumentCode`, `jar`, `check`); zero Kotlin warnings    |
+| `./gradlew buildPlugin`                      | **pass** — `build/distributions/code-web-chat-0.1.0.zip` (349 KB) contains `code-web-chat/lib/code-web-chat-jetbrains-0.1.0.jar`, `gson-2.11.0.jar`, `error_prone_annotations-2.27.0.jar` and `code-web-chat/sidecar/sidecar.js` |
+| `./gradlew verifyPluginConfiguration`        | **pass** — part of `check`; descriptor patched with attribution, `<idea-version since-build="262"/>` and no `until-build`                                                                                                        |
+| `./gradlew runIde`                           | **not run** — WebStorm's `runIde` needs an activated licence, an X display (none here: `DISPLAY` unset, `sudo` blocked by `no_new_privs`) and `libfreetype.so.6`, which the bundled JBR cannot load                              |
+| Firefox run against the sidecar              | **not run** — no Firefox, no GUI, and the Connector needs a signed-in chat session                                                                                                                                               |
 
 The Kotlin sources now compile against the real platform and the plugin ZIP is produced,
 so the remaining verification gap is a live IDE session (`runIde`) and a real browser
@@ -586,3 +589,28 @@ What the first compile actually surfaced, and how it was fixed:
 3. `buildPlugin` packaged only `lib/`, so the distribution was not self-contained: the
    ZIP task now depends on `bundleSidecar` and packs `build/sidecar` as
    `code-web-chat/sidecar/`, which `SidecarService` finds at `<plugin>/sidecar/sidecar.js`.
+
+### Retarget to WebStorm 2026.2.3 (262)
+
+No Kotlin source change was needed: the sources compiled clean against 262 on the first
+try. Every breakage was in the build itself.
+
+| Problem                                                                                                                      | Fix                                                                                                                            |
+| ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| IntelliJ Platform Gradle Plugin 2.6.0 cannot build 262 (262 uses the new module-descriptors.jar layout, handled from 2.20.0) | bumped to `2.20.0`                                                                                                             |
+| Plugin 2.20.0 requires Gradle ≥ 9.0; the wrapper was 8.14                                                                    | wrapper `8.14` → `9.9.0`                                                                                                       |
+| Kotlin 2.1.20 is older than the Kotlin the 262 platform ships against                                                        | `org.jetbrains.kotlin.jvm` `2.1.20` → `2.3.10`                                                                                 |
+| `gradle.properties` targeted community 2025.2 with `untilBuild=253.*` and a `cwcWebStorm` switch                             | `platformVersion=2026.2.3`, `platformSinceBuild=262`, `untilBuild` removed, `webstorm(…)` unconditional, `cwcWebStorm` deleted |
+| Gradle 9.9 flagged `val x: String by project` and `val x by tasks.registering` in our script (removed in Gradle 10)          | `providers.gradleProperty(…).get()` and `tasks.register<Copy>(…)`                                                              |
+| Deprecations were only visible by eye                                                                                        | `compilerOptions { allWarningsAsErrors.set(true) }` — `compileKotlin --rerun-tasks` passes with zero warnings                  |
+
+Platform APIs used by the plugin are _not_ deprecated in 262, which the warning-free strict
+compile now proves: `CopyPasteManager.getContents<String>(…)`,
+`VfsUtil.createDirectoryIfMissing`, `VfsUtilCore.iterateChildrenRecursively`,
+`DiffManager`/`SimpleDiffRequest`, `Messages.showDialog`, `PluginManagerCore.getPlugin(…)`
+`.pluginPath`, `JBTextArea.emptyText`, `ContentFactory.getInstance()`.
+
+Verified platform facts: `product-info.json` in the resolved artifact reports
+`"name": "WebStorm"`, `"version": "2026.2.3"`, `"buildNumber": "262.10968.77"`,
+`"productCode": "WS"`; it bundles JBR `25.0.4`, while our plugin classes are major version
+65 (Java 21), the level plugins are expected to target.
