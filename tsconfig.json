@@ -9,7 +9,9 @@
     "rootDir": ".",
     "paths": {
       "@shared/*": ["./packages/shared/src/*"],
-      "@ui/*": ["./packages/ui/src/*"]
+      "@ui/*": ["./packages/ui/src/*"],
+      "@cwc/core": ["./packages/core/src/index"],
+      "@cwc/core/*": ["./packages/core/src/*"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx"]

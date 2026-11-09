@@ -34,3 +34,49 @@ Firefox only:
 
 - `contextualIdentities` - Required for Firefox Containers support.
 - `cookies` (optional) - Required for Firefox Containers support.
+
+## Firefox
+
+> **Unofficial fork** of [robertpiosik/CodeWebChat](https://github.com/CodeWebChat/CWC)
+> by Robert Piosik. See `NOTICE.md` at the repo root. The attribution line is
+> added to the Firefox manifest description by
+> `scripts/create-firefox-build.ts`; the Chrome manifest is unchanged.
+
+The Firefox build is generated from the same sources as the Chrome build
+(`scripts/create-firefox-build.ts`): manifest v2, a **persistent background
+script** instead of the service worker, `browser_action` instead of `action`,
+and no `alarms` or `host_permissions`. The WebSocket is opened from the
+background script, never from a content script, and uses the identical
+protocol and port as the Chrome build, so the sidecar and the VS Code extension
+serve both.
+
+```bash
+pnpm -C apps/browser build          # also writes dist-firefox/
+pnpm -C apps/browser firefox:lint   # web-ext lint
+pnpm -C apps/browser firefox:run    # web-ext run: temporary load in a Firefox
+```
+
+`web-ext run` starts Firefox with the extension temporarily installed. Sign in
+in the chat tabs and it behaves exactly like the store build. Reload with `r`
+in the `web-ext` terminal after a rebuild.
+
+### AMO unlisted signing
+
+Self-distributed builds must be signed by Mozilla. Create an API key pair at
+<https://addons.mozilla.org/developers/addon/api/key/>, then:
+
+```bash
+WEB_EXT_API_KEY=... WEB_EXT_API_SECRET=... pnpm -C apps/browser firefox:sign
+```
+
+The signed `.xpi` is written to `dist-firefox-signed/`. Never commit the key or
+secret. The extension keeps a stable Add-on ID
+(`browser_specific_settings.gecko.id`), which unlisted signing requires if you
+want updates to replace the same add-on.
+
+### Status
+
+`web-ext lint` runs on the generated `dist-firefox` build. The Firefox build has
+not been exercised against a live browser in this environment (no Firefox and no
+GUI available); the WebSocket protocol it uses is covered by the sidecar's
+protocol tests with `moz-extension://` origins.

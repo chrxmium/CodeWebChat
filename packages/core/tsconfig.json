@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "types": ["node", "jest"],
+    "paths": {
+      "@shared/*": ["../shared/src/*"],
+      "@cwc/core/*": ["./src/*"]
+    }
+  },
+  "include": ["src/**/*.ts"]
+}

@@ -132,6 +132,7 @@ const create_node_config = (
   resolve: {
     alias: {
       '@': src_dir,
+      '@cwc/core': path.resolve(root_dir, '../../packages/core/src'),
       '@shared': shared_dir
     }
   },
@@ -169,6 +170,7 @@ const create_view_config = (
   resolve: {
     alias: {
       '@': src_dir,
+      '@cwc/core': path.resolve(root_dir, '../../packages/core/src'),
       '@shared': shared_dir,
       '@ui': ui_dir
     }

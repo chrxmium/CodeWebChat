@@ -4,6 +4,8 @@
     "types": ["node", "react", "jest"],
     "paths": {
       "@/*": ["./src/*"],
+      "@cwc/core": ["../../packages/core/src/index"],
+      "@cwc/core/*": ["../../packages/core/src/*"],
       "@shared/*": ["../../packages/shared/src/*"],
       "@ui/*": ["../../packages/ui/src/*"]
     }
@@ -11,6 +13,7 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
+    "../../packages/core/src/**/*.ts",
     "../../packages/shared/src/**/*.ts",
     "../../packages/ui/src/**/*"
   ]

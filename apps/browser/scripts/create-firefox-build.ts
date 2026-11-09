@@ -31,6 +31,19 @@ firefox_manifest.optional_permissions = ['cookies'] // Needed by Firefox Contain
 
 delete firefox_manifest.host_permissions
 
+// Unofficial fork: the Firefox listing is built from this manifest, so the
+// attribution is added here only. The Chrome manifest is left untouched.
+firefox_manifest.description = `${manifest.description} Unofficial fork of CodeWebChat by Robert Piosik.`
+
+// Stable Add-on ID, required by `web-ext sign` (AMO unlisted) and so that
+// `storage.local` survives a `web-ext run` reload.
+firefox_manifest.browser_specific_settings = {
+  gecko: {
+    id: 'cwc-connector-fork@chrxmium.github',
+    strict_min_version: '115.0'
+  }
+}
+
 const firefox_dist_dir = path.join(__dirname, '..', 'dist-firefox')
 if (!fs.existsSync(firefox_dist_dir)) {
   fs.mkdirSync(firefox_dist_dir)
