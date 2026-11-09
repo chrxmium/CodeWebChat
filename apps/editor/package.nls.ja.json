@@ -43,7 +43,7 @@
   "codeWebChat.setRanges.title": "範囲を設定...",
   "codeWebChat.searchFiles.title": "ファイルを検索...",
   "codeWebChat.searchFilesWorkspaceAction.title": "ファイルを検索...",
-  "codeWebChat.searchSelectedFiles.title": "ファイルを検索...",
+  "codeWebChat.searchSelectedFiles.title": "選択したファイル内を検索...",
   "codeWebChat.searchFilesFromDirectory.title": "ファイルを検索...",
   "codeWebChat.searchSelectedFilesFromDirectory.title": "ファイルを検索...",
   "codeWebChat.agenticSearch.title": "エージェント検索...",

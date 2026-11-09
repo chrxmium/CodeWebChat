@@ -18,25 +18,23 @@ export const recent_donations = {
     bg: 'Дарения'
   },
   'recent-donations.about': {
-    en: 'If you like CWC and want to show your support for the project, you are welcome to donate. Donating gives you a role in Discord server.',
-    pl: 'Jeśli podoba Ci się CWC i chcesz okazać wsparcie dla projektu, możesz przekazać darowiznę. Przekazanie darowizny daje Ci rolę na serwerze Discord.',
-    'zh-cn':
-      '如果您喜欢 CWC 并希望表达对该项目的支持，欢迎您进行捐款。捐款将使您在 Discord 服务器上获得一个角色。',
-    ja: 'CWC が気に入って、プロジェクトへのサポートを示したい場合は、寄付を歓迎します。寄付すると Discord サーバーでロールが付与されます。',
-    'zh-tw':
-      '如果您喜歡 CWC 並希望表達對該項目的支持，歡迎您進行捐款。捐款將使您在 Discord 伺服器上獲得一個角色。',
-    de: 'Wenn Ihnen CWC gefällt und Sie Ihre Unterstützung für das Projekt zeigen möchten, können Sie gerne spenden. Durch eine Spende erhalten Sie eine Rolle im Discord-Server.',
-    es: 'Si te gusta CWC y quieres mostrar tu apoyo al proyecto, puedes donar. Donar te da un rol en el servidor de Discord.',
-    fr: 'Si vous aimez CWC et souhaitez montrer votre soutien au projet, vous êtes invité à faire un don. Faire un don vous donne un rôle sur le serveur Discord.',
+    en: 'If you like CWC and want to show your support for the project, you are welcome to donate.',
+    pl: 'Jeśli podoba Ci się CWC i chcesz okazać wsparcie dla projektu, możesz przekazać darowiznę.',
+    'zh-cn': '如果您喜欢 CWC 并希望表达对该项目的支持，欢迎您进行捐款。',
+    ja: 'CWC が気に入って、プロジェクトへのサポートを示したい場合は、寄付を歓迎します。',
+    'zh-tw': '如果您喜歡 CWC 並希望表達對該項目的支持，歡迎您進行捐款。',
+    de: 'Wenn Ihnen CWC gefällt und Sie Ihre Unterstützung für das Projekt zeigen möchten, können Sie gerne spenden.',
+    es: 'Si te gusta CWC y quieres mostrar tu apoyo al proyecto, puedes donar.',
+    fr: 'Si vous aimez CWC et souhaitez montrer votre soutien au projet, vous êtes invité à faire un don.',
     'pt-br':
-      'Se você gosta do CWC e quer mostrar seu apoio ao projeto, você é bem-vindo para doar. Doar lhe dá um cargo no servidor do Discord.',
-    ru: 'Если вам нравится CWC и вы хотите поддержать проект, вы можете сделать пожертвование. Пожертвование дает вам роль на сервере Discord.',
-    ko: 'CWC가 마음에 들고 프로젝트에 대한 지원을 표시하고 싶다면 기부를 환영합니다. 기부하면 Discord 서버에서 역할을 얻을 수 있습니다.',
-    it: 'Se ti piace CWC e vuoi mostrare il tuo supporto per il progetto, sei invitato a donare. Donare ti dà un ruolo nel server Discord.',
-    tr: "CWC'yi beğendiyseniz ve projeye desteğinizi göstermek istiyorsanız bağış yapabilirsiniz. Bağış yapmak size Discord sunucusunda bir rol verir.",
-    cs: 'Pokud se vám CWC líbí a chcete vyjádřit podporu projektu, můžete přispět. Darováním získáte roli na Discord serveru.',
-    hu: 'Ha tetszik a CWC, és szeretné támogatni a projektet, szívesen fogadjuk adományát. Az adományozás szerepet ad a Discord szerveren.',
-    bg: 'Ако харесвате CWC и искате да покажете подкрепата си за проекта, сте добре дошли да дарите. Дарението ви дава роля в сървъра на Discord.'
+      'Se você gosta do CWC e quer mostrar seu apoio ao projeto, você é bem-vindo para doar.',
+    ru: 'Если вам нравится CWC и вы хотите поддержать проект, вы можете сделать пожертвование.',
+    ko: 'CWC가 마음에 들고 프로젝트에 대한 지원을 표시하고 싶다면 기부를 환영합니다.',
+    it: 'Se ti piace CWC e vuoi mostrare il tuo supporto per il progetto, sei invitato a donare.',
+    tr: "CWC'yi beğendiyseniz ve projeye desteğinizi göstermek istiyorsanız bağış yapabilirsiniz.",
+    cs: 'Pokud se vám CWC líbí a chcete vyjádřit podporu projektu, můžete přispět.',
+    hu: 'Ha tetszik a CWC, és szeretné támogatni a projektet, szívesen fogadjuk adományát.',
+    bg: 'Ако харесвате CWC и искате да покажете подкрепата си за проекта, сте добре дошли да дарите.'
   },
   'recent-donations.platforms': {
     en: 'Platforms',

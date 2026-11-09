@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Code Web Chat",
   "description": "Markdown prompts for chatbots, APIs, and CLIs with seamless integration",
-  "version": "2026.1108.407",
+  "version": "2026.1109.408",
   "scripts": {
     "build": "vsce package --no-dependencies",
     "vscode:prepublish": "npm run compile",
@@ -565,14 +565,6 @@
         },
         {
           "command": "codeWebChat.generateCommitMessage",
-          "when": "false"
-        },
-        {
-          "command": "codeWebChat.searchFiles",
-          "when": "false"
-        },
-        {
-          "command": "codeWebChat.searchSelectedFiles",
           "when": "false"
         },
         {

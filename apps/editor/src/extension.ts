@@ -12,7 +12,8 @@ import {
   migrate_prompt_templates_to_templates,
   migrate_model_providers_to_providers,
   migrate_settings_keys_to_chatbots_and_models,
-  migrate_ranges_to_global_storage
+  migrate_ranges_to_global_storage,
+  migrate_checkpoints_to_global_storage
 } from './migrations'
 import {
   agentic_search_command,
@@ -53,6 +54,7 @@ import { setup_git_discard_file_watcher } from './services/git-discard-file-watc
 import { SettingsViewProvider } from './views/settings/backend/settings-view-provider'
 import { get_current_preview_url } from './views/prompt/backend/message-handlers/handle-open-website'
 import { AgenticSearchState } from './features/agentic-search'
+import { checkpoints_cleanup } from './features/checkpoints/utils'
 import { t } from '@/i18n'
 
 let websocket_server_instance: WebSocketManager | null = null
@@ -82,9 +84,13 @@ export const activate = async (extension_context: vscode.ExtensionContext) => {
     await migrate_settings_keys_to_chatbots_and_models(extension_context)
     // 8 November 2026
     await migrate_ranges_to_global_storage(extension_context)
+    // 9 November 2026
+    await migrate_checkpoints_to_global_storage(extension_context)
   }
 
   await migrations()
+
+  checkpoints_cleanup(extension_context).catch(() => {})
 
   const agentic_search_state = new AgenticSearchState()
 

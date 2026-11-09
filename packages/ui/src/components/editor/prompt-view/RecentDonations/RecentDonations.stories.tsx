@@ -6,7 +6,7 @@ export default {
 
 const sample_translations = {
   about:
-    'If you like CWC and want to show your support for the project, you can donate here. Donating gives you a role in Discord server.',
+    'If you like CWC and want to show your support for the project, you can donate here.',
   platforms: 'Platforms',
   wallets: 'Wallets',
   scan_qr: 'Scan QR'

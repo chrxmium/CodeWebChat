@@ -1,8 +1,11 @@
 import * as vscode from 'vscode'
-import { CHECKPOINTS_STATE_KEY } from '@/constants/state-keys'
 import type { Checkpoint } from '../types'
 import { get_checkpoint_path } from '../utils'
 import { ResponseHistoryItem } from '@shared/types/response-history-item'
+import {
+  load_checkpoints_metadata,
+  save_checkpoints_metadata
+} from '../utils/checkpoints-metadata'
 
 export const accept_checkpoint = async (params: {
   extension_context: vscode.ExtensionContext
@@ -10,11 +13,8 @@ export const accept_checkpoint = async (params: {
   history_for_checkpoint: ResponseHistoryItem[]
   created_at_for_preview?: number
 }) => {
-  const checkpoints =
-    params.extension_context.workspaceState.get<Checkpoint[]>(
-      CHECKPOINTS_STATE_KEY,
-      []
-    ) ?? []
+  const checkpoints = await load_checkpoints_metadata(params.extension_context)
+
   const checkpoint_index = checkpoints.findIndex(
     (c) => c.timestamp === params.checkpoint.timestamp
   )
@@ -41,17 +41,27 @@ export const accept_checkpoint = async (params: {
         `Failed to rename checkpoint directory for timestamp update:`,
         err
       )
+      return
     }
     checkpoint_to_update.trigger = 'response-accepted'
-    checkpoint_to_update.response_history = params.history_for_checkpoint
     checkpoint_to_update.response_preview_item_created_at =
       params.created_at_for_preview
 
+    try {
+      const history_file_path = vscode.Uri.joinPath(
+        vscode.Uri.file(new_path),
+        'response-history.json'
+      )
+      await vscode.workspace.fs.writeFile(
+        history_file_path,
+        new TextEncoder().encode(JSON.stringify(params.history_for_checkpoint))
+      )
+    } catch (err) {
+      console.error(`Failed to write response-history.json:`, err)
+    }
+
     checkpoints.sort((a, b) => b.timestamp - a.timestamp)
 
-    await params.extension_context.workspaceState.update(
-      CHECKPOINTS_STATE_KEY,
-      checkpoints
-    )
+    await save_checkpoints_metadata(params.extension_context, checkpoints)
   }
 }

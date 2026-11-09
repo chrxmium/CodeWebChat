@@ -40,7 +40,9 @@ export class GlobalWorkspaceStorage<T> {
     }
 
     try {
-      fs.writeFileSync(file_path, JSON.stringify(data, null, 2), 'utf8')
+      const temp_path = file_path + '.tmp'
+      fs.writeFileSync(temp_path, JSON.stringify(data, null, 2), 'utf8')
+      fs.renameSync(temp_path, file_path)
     } catch (error) {
       console.error(
         `Failed to save to global workspace storage (${this.filename}):`,

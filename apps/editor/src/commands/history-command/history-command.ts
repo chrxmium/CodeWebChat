@@ -1,8 +1,5 @@
 import * as vscode from 'vscode'
-import {
-  CHECKPOINTS_STATE_KEY,
-  TEMPORARY_CHECKPOINT_STATE_KEY
-} from '../../constants/state-keys'
+import { TEMPORARY_CHECKPOINT_STATE_KEY } from '../../constants/state-keys'
 import { WorkspaceProvider } from '../../context/providers/workspace/workspace-provider'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -16,6 +13,7 @@ import {
 import { clear_all_checkpoints } from './actions/clear-all-checkpoints'
 import { restore_checkpoint } from './actions/restore-checkpoint'
 import { toggle_checkpoint_pin } from './actions/toggle-checkpoint-pin'
+import { update_checkpoint_description } from './actions/update-checkpoint-description'
 import {
   ActiveDeleteOperation,
   delete_checkpoint_with_undo
@@ -242,10 +240,13 @@ export const history_command = (params: {
 
           update_view()
           if (checkpoint_to_highlight) {
-            const item = quick_pick.items.find(
+            const item = (
+              quick_pick.items as (vscode.QuickPickItem & {
+                checkpoint?: Checkpoint
+              })[]
+            ).find(
               (i) =>
-                (i as any).checkpoint?.timestamp ===
-                checkpoint_to_highlight?.timestamp
+                i.checkpoint?.timestamp === checkpoint_to_highlight?.timestamp
             )
             if (item) {
               quick_pick.activeItems = [item]
@@ -378,9 +379,12 @@ export const history_command = (params: {
             })
 
             await refresh_and_update_view()
-            const active_item = quick_pick.items.find(
-              (i) =>
-                (i as any).checkpoint?.timestamp === item.checkpoint?.timestamp
+            const active_item = (
+              quick_pick.items as (vscode.QuickPickItem & {
+                checkpoint?: Checkpoint
+              })[]
+            ).find(
+              (i) => i.checkpoint?.timestamp === item.checkpoint?.timestamp
             )
             if (active_item) {
               quick_pick.activeItems = [active_item]
@@ -407,18 +411,22 @@ export const history_command = (params: {
               )
               if (checkpoint_to_update) {
                 checkpoint_to_update.description = new_description
-                await params.extension_context.workspaceState.update(
-                  CHECKPOINTS_STATE_KEY,
-                  checkpoints
-                )
+                await update_checkpoint_description({
+                  extension_context: params.extension_context,
+                  timestamp: item.checkpoint!.timestamp,
+                  description: new_description,
+                  prompt_view_provider: params.prompt_view_provider
+                })
               }
             }
             await refresh_and_update_view()
             if (new_description !== undefined) {
-              const active_item = quick_pick.items.find(
-                (i) =>
-                  (i as any).checkpoint?.timestamp ===
-                  item.checkpoint?.timestamp
+              const active_item = (
+                quick_pick.items as (vscode.QuickPickItem & {
+                  checkpoint?: Checkpoint
+                })[]
+              ).find(
+                (i) => i.checkpoint?.timestamp === item.checkpoint?.timestamp
               )
               if (active_item) {
                 quick_pick.activeItems = [active_item]
@@ -441,10 +449,12 @@ export const history_command = (params: {
                 // If restoring, we might want to highlight the restored item
                 if (updated.length > checkpoints.length) {
                   // Heuristic: if count increased, likely restored
-                  const restored_item = quick_pick.items.find(
-                    (i) =>
-                      (i as any).checkpoint?.timestamp ==
-                      item.checkpoint?.timestamp
+                  const restored_item = (
+                    quick_pick.items as (vscode.QuickPickItem & {
+                      checkpoint?: Checkpoint
+                    })[]
+                  ).find(
+                    (i) => i.checkpoint?.timestamp == item.checkpoint?.timestamp
                   )
                   if (restored_item) {
                     quick_pick.activeItems = [restored_item]

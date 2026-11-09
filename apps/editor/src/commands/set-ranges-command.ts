@@ -178,10 +178,12 @@ export const set_ranges_command = (
             if (Object.keys(file_ranges).length === 0) {
               await fs.unlink(ranges_file_path).catch(() => {})
             } else {
+              const temp_path = ranges_file_path + '.tmp'
               await fs.writeFile(
-                ranges_file_path,
+                temp_path,
                 JSON.stringify(file_ranges, null, 2)
               )
+              await fs.rename(temp_path, ranges_file_path)
             }
             changed = true
           } catch (error) {
@@ -264,10 +266,9 @@ export const set_ranges_command = (
           file_ranges[relative_path] = formatted_range
           try {
             await fs.mkdir(path.dirname(ranges_file_path), { recursive: true })
-            await fs.writeFile(
-              ranges_file_path,
-              JSON.stringify(file_ranges, null, 2)
-            )
+            const temp_path = ranges_file_path + '.tmp'
+            await fs.writeFile(temp_path, JSON.stringify(file_ranges, null, 2))
+            await fs.rename(temp_path, ranges_file_path)
 
             if (state_range_value) {
               const updated_all = { ...all_global_ranges }
@@ -305,10 +306,12 @@ export const set_ranges_command = (
               if (Object.keys(file_ranges).length === 0) {
                 await fs.unlink(ranges_file_path).catch(() => {})
               } else {
+                const temp_path = ranges_file_path + '.tmp'
                 await fs.writeFile(
-                  ranges_file_path,
+                  temp_path,
                   JSON.stringify(file_ranges, null, 2)
                 )
+                await fs.rename(temp_path, ranges_file_path)
               }
             } catch (error) {
               vscode.window.showErrorMessage(

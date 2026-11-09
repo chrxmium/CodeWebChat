@@ -1,7 +1,9 @@
 import * as vscode from 'vscode'
-import { CHECKPOINTS_STATE_KEY } from '@/constants/state-keys'
-import type { Checkpoint } from '@/features/checkpoints/types'
 import { PromptViewProvider } from '@/views/prompt/backend/prompt-view-provider'
+import {
+  load_checkpoints_metadata,
+  save_checkpoints_metadata
+} from '@/features/checkpoints/utils/checkpoints-metadata'
 
 export const update_checkpoint_description = async (params: {
   extension_context: vscode.ExtensionContext
@@ -9,19 +11,13 @@ export const update_checkpoint_description = async (params: {
   description: string
   prompt_view_provider: PromptViewProvider
 }) => {
-  const checkpoints =
-    params.extension_context.workspaceState.get<Checkpoint[]>(
-      CHECKPOINTS_STATE_KEY,
-      []
-    ) ?? []
+  const checkpoints = await load_checkpoints_metadata(params.extension_context)
+
   const checkpoint_to_update = checkpoints.find(
     (c) => c.timestamp === params.timestamp
   )
   if (checkpoint_to_update) {
     checkpoint_to_update.description = params.description
-    await params.extension_context.workspaceState.update(
-      CHECKPOINTS_STATE_KEY,
-      checkpoints
-    )
+    await save_checkpoints_metadata(params.extension_context, checkpoints)
   }
 }

@@ -1,26 +1,25 @@
 import * as vscode from 'vscode'
-import { CHECKPOINTS_STATE_KEY } from '@/constants/state-keys'
 import type { Checkpoint } from '../types'
 import { get_checkpoint_path } from '../utils'
 import { Logger } from '@shared/utils/logger'
-import { CHECKPOINT_DEFAULT_LIFESPAN } from '@/constants/values'
+import { CHECKPOINT_LIFESPAN } from '@/constants/values'
+import {
+  load_checkpoints_metadata,
+  save_checkpoints_metadata
+} from '../utils/checkpoints-metadata'
 
 export const remove_old_checkpoints = async (
   checkpoints: Checkpoint[],
   extension_context: vscode.ExtensionContext
 ): Promise<Checkpoint[]> => {
-  const checkpoint_lifespan_ms = CHECKPOINT_DEFAULT_LIFESPAN * 60 * 60 * 1000
-
   const now = Date.now()
-  const cutoff_time = now - checkpoint_lifespan_ms
+  const cutoff_time = now - CHECKPOINT_LIFESPAN
 
   const checkpoints_to_keep: Checkpoint[] = []
   const checkpoints_to_remove: Checkpoint[] = []
 
   for (const checkpoint of checkpoints) {
-    if (checkpoint.is_pinned) {
-      checkpoints_to_keep.push(checkpoint)
-    } else if (checkpoint.timestamp < cutoff_time) {
+    if (checkpoint.timestamp < cutoff_time) {
       checkpoints_to_remove.push(checkpoint)
     } else {
       checkpoints_to_keep.push(checkpoint)
@@ -56,11 +55,8 @@ export const remove_old_checkpoints = async (
 export const get_checkpoints = async (
   extension_context: vscode.ExtensionContext
 ): Promise<Checkpoint[]> => {
-  const checkpoints =
-    extension_context.workspaceState.get<Checkpoint[]>(
-      CHECKPOINTS_STATE_KEY,
-      []
-    ) ?? []
+  const checkpoints = await load_checkpoints_metadata(extension_context)
+
   const valid_checkpoints: Checkpoint[] = []
   let state_updated = false
   for (const checkpoint of checkpoints) {
@@ -77,10 +73,7 @@ export const get_checkpoints = async (
   }
 
   if (state_updated) {
-    await extension_context.workspaceState.update(
-      CHECKPOINTS_STATE_KEY,
-      valid_checkpoints
-    )
+    await save_checkpoints_metadata(extension_context, valid_checkpoints)
   }
 
   return valid_checkpoints

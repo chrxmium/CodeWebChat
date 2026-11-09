@@ -1,13 +1,11 @@
 import * as vscode from 'vscode'
-import {
-  CHECKPOINTS_STATE_KEY,
-  TEMPORARY_CHECKPOINT_STATE_KEY
-} from '@/constants/state-keys'
+import { TEMPORARY_CHECKPOINT_STATE_KEY } from '@/constants/state-keys'
 import { get_checkpoint_path } from '@/features/checkpoints/utils'
 import { get_checkpoints } from '@/features/checkpoints/actions'
 import { Logger } from '@shared/utils/logger'
 import type { Checkpoint } from '@/features/checkpoints/types'
 import { t } from '@/i18n'
+import { save_checkpoints_metadata } from '@/features/checkpoints/utils/checkpoints-metadata'
 
 export const clear_all_checkpoints = async (
   extension_context: vscode.ExtensionContext
@@ -61,10 +59,8 @@ export const clear_all_checkpoints = async (
       TEMPORARY_CHECKPOINT_STATE_KEY,
       undefined
     )
-    await extension_context.workspaceState.update(
-      CHECKPOINTS_STATE_KEY,
-      checkpoints_to_keep
-    )
+
+    await save_checkpoints_metadata(extension_context, checkpoints_to_keep)
   }
   await vscode.window.withProgress(
     {

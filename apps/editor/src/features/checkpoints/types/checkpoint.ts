@@ -1,9 +1,6 @@
-import { ResponseHistoryItem } from '@shared/types/response-history-item'
-
 export interface GitCheckpointData {
   branch: string
   commit_hash: string
-  folder_name: string
 }
 
 export interface CheckpointTab {
@@ -27,10 +24,8 @@ export interface Checkpoint {
   description?: string
   is_pinned?: boolean
   git_data?: Record<string, GitCheckpointData>
-  uses_git?: boolean
-  response_history?: ResponseHistoryItem[]
+  uses_git: boolean
   response_preview_item_created_at?: number
-  selected_files?: string[]
-  active_tabs?: CheckpointTab[]
-  completed_tasks?: string[]
+  selected_files: string[]
+  active_tabs: CheckpointTab[]
 }

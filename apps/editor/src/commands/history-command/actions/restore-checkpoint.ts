@@ -22,6 +22,7 @@ import { ongoing_preview_cleanup_promise } from '@/commands/apply-response-comma
 import { CommitMessageDetails } from '@/utils/commit-message-details'
 import { t } from '@/i18n'
 import { get_error_message } from '@/utils/get-error-message'
+import { ResponseHistoryItem } from '@shared/types/response-history-item'
 
 export const restore_checkpoint = async (params: {
   checkpoint: Checkpoint
@@ -58,32 +59,11 @@ export const restore_checkpoint = async (params: {
         })
       }
 
-      let open_files: {
-        uri: vscode.Uri
-        viewColumn: vscode.ViewColumn
-        isActive: boolean
-      }[] = []
-
-      if (params.checkpoint.active_tabs) {
-        open_files = params.checkpoint.active_tabs.map((tab) => ({
-          uri: vscode.Uri.parse(tab.uri),
-          viewColumn: tab.view_column as vscode.ViewColumn,
-          isActive: tab.is_active && tab.is_group_active
-        }))
-      } else {
-        const tab_groups = vscode.window.tabGroups.all
-        for (const group of tab_groups) {
-          for (const tab of group.tabs) {
-            if (tab.input instanceof vscode.TabInputText) {
-              open_files.push({
-                uri: (tab.input as vscode.TabInputText).uri,
-                viewColumn: group.viewColumn,
-                isActive: tab.isActive && group.isActive
-              })
-            }
-          }
-        }
-      }
+      const open_files = (params.checkpoint.active_tabs ?? []).map((tab) => ({
+        uri: vscode.Uri.parse(tab.uri),
+        viewColumn: tab.view_column as vscode.ViewColumn,
+        isActive: tab.is_active && tab.is_group_active
+      }))
 
       let temp_checkpoint: Checkpoint | undefined
       try {
@@ -176,12 +156,24 @@ export const restore_checkpoint = async (params: {
           progress
         )
 
-        if (params.checkpoint.response_history) {
-          params.prompt_view_provider.response_history =
-            params.checkpoint.response_history
+        let loaded_history: ResponseHistoryItem[] = []
+        try {
+          const history_file_path = vscode.Uri.joinPath(
+            vscode.Uri.file(checkpoint_dir_path),
+            'response-history.json'
+          )
+          const history_data =
+            await vscode.workspace.fs.readFile(history_file_path)
+          loaded_history = JSON.parse(new TextDecoder().decode(history_data))
+        } catch {
+          // Ignore if file doesn't exist
+        }
+
+        if (loaded_history.length > 0) {
+          params.prompt_view_provider.response_history = loaded_history
           params.prompt_view_provider.send_message({
             command: 'RESPONSE_HISTORY',
-            history: params.checkpoint.response_history
+            history: loaded_history
           })
         } else {
           params.prompt_view_provider.response_history = []
@@ -191,18 +183,31 @@ export const restore_checkpoint = async (params: {
           })
         }
 
-        if (params.checkpoint.completed_tasks) {
-          params.prompt_view_provider.completed_tasks =
-            params.checkpoint.completed_tasks
+        let loaded_completed_tasks: string[] | undefined
+        try {
+          const completed_tasks_file_path = vscode.Uri.joinPath(
+            vscode.Uri.file(checkpoint_dir_path),
+            'completed-tasks.json'
+          )
+          const completed_tasks_data = await vscode.workspace.fs.readFile(
+            completed_tasks_file_path
+          )
+          loaded_completed_tasks = JSON.parse(
+            new TextDecoder().decode(completed_tasks_data)
+          )
+        } catch {}
+
+        if (loaded_completed_tasks !== undefined) {
+          params.prompt_view_provider.completed_tasks = loaded_completed_tasks
           await params.extension_context.workspaceState.update(
             COMPLETED_TASKS_STATE_KEY,
-            params.checkpoint.completed_tasks
+            loaded_completed_tasks
           )
           params.prompt_view_provider.send_message({
             command: 'COMPLETED_TASKS',
-            completed_tasks: params.checkpoint.completed_tasks
+            completed_tasks: loaded_completed_tasks
           })
-        } else {
+        } else if (params.checkpoint.trigger !== 'temporary') {
           params.prompt_view_provider.completed_tasks = []
           await params.extension_context.workspaceState.update(
             COMPLETED_TASKS_STATE_KEY,
@@ -243,13 +248,11 @@ export const restore_checkpoint = async (params: {
           } catch {}
         }
 
-        if (params.checkpoint.selected_files) {
-          await params.extension_context.workspaceState.update(
-            CONTEXT_SELECTED_PATHS_STATE_KEY,
-            params.checkpoint.selected_files
-          )
-          params.workspace_provider.load_selected_files_state()
-        }
+        await params.extension_context.workspaceState.update(
+          CONTEXT_SELECTED_PATHS_STATE_KEY,
+          params.checkpoint.selected_files
+        )
+        params.workspace_provider.load_selected_files_state()
 
         params.prompt_view_provider.send_token_count()
 
@@ -261,9 +264,9 @@ export const restore_checkpoint = async (params: {
         if (
           params.checkpoint.trigger === 'response-accepted' &&
           params.checkpoint.response_preview_item_created_at &&
-          params.checkpoint.response_history
+          loaded_history.length > 0
         ) {
-          const item_to_preview = params.checkpoint.response_history.find(
+          const item_to_preview = loaded_history.find(
             (item) =>
               item.created_at ==
               params.checkpoint.response_preview_item_created_at

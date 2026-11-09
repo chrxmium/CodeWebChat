@@ -43,8 +43,7 @@ export const create_workspace_snapshot = async (
         if (git_info && diff !== null) {
           git_data[folder_key] = {
             branch: git_info.branch,
-            commit_hash: git_info.commit_hash,
-            folder_name: folder_key
+            commit_hash: git_info.commit_hash
           }
 
           const diff_file_path = path.join(dest_dir_path, `${folder_key}.diff`)
@@ -167,7 +166,7 @@ export const restore_workspace_snapshot = async (
 
           const diff_file_path = path.join(
             source_dir_path,
-            `${git_info.folder_name}.diff`
+            `${folder_key}.diff`
           )
 
           let diff = ''
@@ -268,7 +267,7 @@ export const restore_workspace_snapshot = async (
 
           const diff_file_path = path.join(
             source_dir_path,
-            `${git_info.folder_name}.diff`
+            `${folder_key}.diff`
           )
 
           let diff = ''

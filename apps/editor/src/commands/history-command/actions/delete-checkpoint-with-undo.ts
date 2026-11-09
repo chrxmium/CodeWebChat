@@ -1,10 +1,13 @@
 import * as vscode from 'vscode'
-import { CHECKPOINTS_STATE_KEY } from '@/constants/state-keys'
 import type { Checkpoint } from '@/features/checkpoints/types'
 import { get_checkpoint_path } from '@/features/checkpoints/utils'
 import { PromptViewProvider } from '@/views/prompt/backend/prompt-view-provider'
 import { t } from '@/i18n'
 import { get_error_message } from '@/utils/get-error-message'
+import {
+  load_checkpoints_metadata,
+  save_checkpoints_metadata
+} from '@/features/checkpoints/utils/checkpoints-metadata'
 
 export type ActiveDeleteOperation = {
   finalize: () => Promise<void>
@@ -26,19 +29,14 @@ export const delete_checkpoint_with_undo = async (params: {
     params.set_active_operation(null)
   }
 
-  const checkpoints =
-    params.extension_context.workspaceState.get<Checkpoint[]>(
-      CHECKPOINTS_STATE_KEY,
-      []
-    ) ?? []
+  const checkpoints = await load_checkpoints_metadata(params.extension_context)
 
   const updated_checkpoints = checkpoints.filter(
     (c) => c.timestamp !== params.checkpoint.timestamp
   )
-  await params.extension_context.workspaceState.update(
-    CHECKPOINTS_STATE_KEY,
-    updated_checkpoints
-  )
+
+  await save_checkpoints_metadata(params.extension_context, updated_checkpoints)
+
   params.on_did_update_checkpoints?.(updated_checkpoints)
 
   const finalize = async () => {
@@ -77,19 +75,18 @@ export const delete_checkpoint_with_undo = async (params: {
     current_active_op.timestamp === operation.timestamp
   ) {
     if (choice === undo_action) {
-      const current_checkpoints =
-        params.extension_context.workspaceState.get<Checkpoint[]>(
-          CHECKPOINTS_STATE_KEY,
-          []
-        ) ?? []
+      const current_checkpoints = await load_checkpoints_metadata(
+        params.extension_context
+      )
 
       current_checkpoints.push(params.checkpoint)
       current_checkpoints.sort((a, b) => b.timestamp - a.timestamp)
 
-      await params.extension_context.workspaceState.update(
-        CHECKPOINTS_STATE_KEY,
+      await save_checkpoints_metadata(
+        params.extension_context,
         current_checkpoints
       )
+
       params.on_did_update_checkpoints?.(current_checkpoints)
 
       params.on_before_show_message?.()

@@ -2,7 +2,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import * as vscode from 'vscode'
 import * as crypto from 'crypto'
-import { GARBAGE_COLLECTION_THRESHOLD } from '@/constants/values'
+import { PROMPT_UPLOADS_LIFESPAN } from '@/constants/values'
 
 export class PersistentPromptStorage<T extends 'text' | 'image'> {
   private dir_path: string
@@ -75,7 +75,7 @@ export class PersistentPromptStorage<T extends 'text' | 'image'> {
         return
       }
       const files = await fs.promises.readdir(this.dir_path)
-      const threshold_time = Date.now() - GARBAGE_COLLECTION_THRESHOLD
+      const threshold_time = Date.now() - PROMPT_UPLOADS_LIFESPAN
       for (const file of files) {
         if (file.endsWith(this.extension)) {
           const file_path = path.join(this.dir_path, file)

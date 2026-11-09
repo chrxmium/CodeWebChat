@@ -18,7 +18,7 @@ export const LAST_SELECTED_REPOSITORY_IN_SYMBOLS_QUCK_PICK_STATE_KEY =
 export const LAST_SELECTED_COMMIT_REFERENCE_ACTION_STATE_KEY =
   'last-selected-commit-reference-action'
 
-export const CHECKPOINTS_STATE_KEY = 'checkpoints'
+export const CHECKPOINTS_WORKSPACE_ID_STATE_KEY = 'checkpoints-workspace-id'
 export const TEMPORARY_CHECKPOINT_STATE_KEY = 'temporary-checkpoint'
 export const CHECKPOINT_OPERATION_IN_PROGRESS_STATE_KEY =
   'checkpoint-operation-in-progress'

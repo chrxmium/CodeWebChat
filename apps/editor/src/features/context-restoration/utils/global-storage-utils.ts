@@ -62,7 +62,9 @@ export const save_contexts_for_workspace = (params: {
   }
 
   try {
-    fs.writeFileSync(file_path, JSON.stringify(filtered_data, null, 2), 'utf8')
+    const temp_path = file_path + '.tmp'
+    fs.writeFileSync(temp_path, JSON.stringify(filtered_data, null, 2), 'utf8')
+    fs.renameSync(temp_path, file_path)
   } catch (error) {
     console.error('Error saving global contexts:', error)
     throw new Error('Failed to save contexts to global storage.')

@@ -1,6 +1,5 @@
 import * as vscode from 'vscode'
 import {
-  CHECKPOINTS_STATE_KEY,
   TEMPORARY_CHECKPOINT_STATE_KEY,
   CHECKPOINT_OPERATION_IN_PROGRESS_STATE_KEY
 } from '@/constants/state-keys'
@@ -15,6 +14,7 @@ import { PromptViewProvider } from '@/views/prompt/backend/prompt-view-provider'
 import { response_preview_promise_resolve } from '@/commands/apply-response-command/utils/preview'
 import { t } from '@/i18n'
 import { get_error_message } from '@/utils/get-error-message'
+import { save_checkpoints_metadata } from '../utils/checkpoints-metadata'
 
 export const create_checkpoint = async (params: {
   workspace_provider: WorkspaceProvider
@@ -135,21 +135,53 @@ export const create_checkpoint = async (params: {
         uses_git: snapshot_data.uses_git,
         git_data: snapshot_data.git_data,
         selected_files: params.workspace_provider.get_all_selected_paths(),
-        active_tabs,
-        completed_tasks: [...params.prompt_view_provider.completed_tasks]
+        active_tabs
+      }
+
+      try {
+        const completed_tasks_file_path = vscode.Uri.joinPath(
+          vscode.Uri.file(checkpoint_dir_path),
+          'completed-tasks.json'
+        )
+        await vscode.workspace.fs.writeFile(
+          completed_tasks_file_path,
+          new TextEncoder().encode(
+            JSON.stringify(params.prompt_view_provider.completed_tasks)
+          )
+        )
+      } catch (err) {
+        Logger.warn({
+          function_name: 'create_checkpoint',
+          message: 'Could not write completed-tasks.json',
+          data: err
+        })
       }
 
       if (trigger === 'manual' && !response_preview_promise_resolve) {
-        checkpoint_object.response_history = [
-          ...params.prompt_view_provider.response_history
-        ]
+        try {
+          const history_file_path = vscode.Uri.joinPath(
+            vscode.Uri.file(checkpoint_dir_path),
+            'response-history.json'
+          )
+          await vscode.workspace.fs.writeFile(
+            history_file_path,
+            new TextEncoder().encode(
+              JSON.stringify(params.prompt_view_provider.response_history)
+            )
+          )
+        } catch (err) {
+          Logger.warn({
+            function_name: 'create_checkpoint',
+            message: 'Could not write response-history.json',
+            data: err
+          })
+        }
       }
 
       checkpoints.unshift(checkpoint_object)
-      await params.extension_context.workspaceState.update(
-        CHECKPOINTS_STATE_KEY,
-        checkpoints
-      )
+
+      await save_checkpoints_metadata(params.extension_context, checkpoints)
+
       await params.extension_context.workspaceState.update(
         CHECKPOINT_OPERATION_IN_PROGRESS_STATE_KEY,
         undefined

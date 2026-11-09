@@ -1,27 +1,24 @@
 import * as vscode from 'vscode'
-import { CHECKPOINTS_STATE_KEY } from '@/constants/state-keys'
 import type { Checkpoint } from '../types'
 import { get_checkpoint_path } from '../utils'
 import { Logger } from '@shared/utils/logger'
 import { PromptViewProvider } from '@/views/prompt/backend/prompt-view-provider'
+import {
+  load_checkpoints_metadata,
+  save_checkpoints_metadata
+} from '../utils/checkpoints-metadata'
 
 export const delete_checkpoint = async (params: {
   extension_context: vscode.ExtensionContext
   checkpoint_to_delete: Checkpoint
   prompt_view_provider: PromptViewProvider
 }) => {
-  const checkpoints =
-    params.extension_context.workspaceState.get<Checkpoint[]>(
-      CHECKPOINTS_STATE_KEY,
-      []
-    ) ?? []
+  const checkpoints = await load_checkpoints_metadata(params.extension_context)
+
   const updated_checkpoints = checkpoints.filter(
     (c) => c.timestamp !== params.checkpoint_to_delete.timestamp
   )
-  await params.extension_context.workspaceState.update(
-    CHECKPOINTS_STATE_KEY,
-    updated_checkpoints
-  )
+  await save_checkpoints_metadata(params.extension_context, updated_checkpoints)
 
   try {
     const checkpoint_path = get_checkpoint_path(

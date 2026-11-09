@@ -58,11 +58,13 @@ export namespace CommitMessageDetails {
     }
 
     try {
+      const temp_path = file_path + '.tmp'
       fs.writeFileSync(
-        file_path,
+        temp_path,
         JSON.stringify(filtered_prompts, null, 2),
         'utf8'
       )
+      fs.renameSync(temp_path, file_path)
     } catch (error) {
       console.error('Failed to save commit prompts', error)
     }
