@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Code Web Chat",
   "description": "Markdown prompts for chatbots, APIs, and CLIs with seamless integration",
-  "version": "2026.1109.408",
+  "version": "2026.1109.409",
   "scripts": {
     "build": "vsce package --no-dependencies",
     "vscode:prepublish": "npm run compile",
